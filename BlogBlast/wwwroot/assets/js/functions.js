@@ -8,7 +8,7 @@ document.addEventListener("DOMContentLoaded", _ => {
     const topNav = document.getElementsByClassName("topnav")[0];
     // Do a simple if check statement to see if topNav is available ot not
     if (topNav) {
-        window.scroll = () => {
+        window.onscroll = () => {
             // Also, check if the scroll is greater then 50 pixels
             if (window.scrollY > 50) {
                 // If so, add these classes - scrollednav py-0
