@@ -1,3 +1,7 @@
+// TESTING...
+alert('functions.js');
+// Result = it is loading
+
 // Add Event Lister 
 document.addEventListener("DOMContentLoaded", _ => {
     // Create a Const to get the "topnav" class element by id from index[0] from the list of pages - for NavBar
