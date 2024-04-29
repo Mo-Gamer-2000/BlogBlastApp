@@ -17,3 +17,14 @@ document.addEventListener("DOMContentLoaded", _ => {
         };
     }
 });
+
+// Implement function for toggle menu bar for smaller screens
+// Pass e (event) as parameter
+function toggleMenu(e) {
+    // Loking for the class name collapsed - for Toggeling
+    e.target.classList.toggle('collapsed');
+    // Created const to store, the element by the id = navbar-menu-wrapper
+    const navbarWrapper = document.getElementById('navbar-menu-wrapper');
+    // Toggle between show and collapse class
+    navbarWrapper.classList.toggle('show');
+}
