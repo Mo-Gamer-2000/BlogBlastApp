@@ -10,9 +10,6 @@
   <ItemGroup>
     <Content Remove="wwwroot\assets\css\main.css" />
     <Content Remove="wwwroot\assets\css\main.css.map" />
-    <Content Remove="wwwroot\assets\css\vendor\aos.css" />
-    <Content Remove="wwwroot\assets\css\vendor\bootstrap-toc.css" />
-    <Content Remove="wwwroot\assets\css\vendor\prism.css" />
     <Content Remove="wwwroot\assets\img\demo\1.jpg" />
     <Content Remove="wwwroot\assets\img\demo\10.jpg" />
     <Content Remove="wwwroot\assets\img\demo\2.jpg" />
@@ -44,21 +41,11 @@
     <Content Remove="wwwroot\assets\img\screenshot-mundana-category.png" />
     <Content Remove="wwwroot\assets\img\screenshot-mundana.png" />
     <Content Remove="wwwroot\assets\js\functions.js" />
-    <Content Remove="wwwroot\assets\js\vendor\aos.js" />
-    <Content Remove="wwwroot\assets\js\vendor\bootstrap-toc.js" />
-    <Content Remove="wwwroot\assets\js\vendor\bootstrap.min.js" />
-    <Content Remove="wwwroot\assets\js\vendor\jquery.min.js" />
-    <Content Remove="wwwroot\assets\js\vendor\popper.min.js" />
-    <Content Remove="wwwroot\assets\js\vendor\prism.js" />
-    <Content Remove="wwwroot\assets\js\vendor\share.js" />
   </ItemGroup>
 
   <ItemGroup>
     <None Include="wwwroot\assets\css\main.css" />
     <None Include="wwwroot\assets\css\main.css.map" />
-    <None Include="wwwroot\assets\css\vendor\aos.css" />
-    <None Include="wwwroot\assets\css\vendor\bootstrap-toc.css" />
-    <None Include="wwwroot\assets\css\vendor\prism.css" />
     <None Include="wwwroot\assets\img\demo\1.jpg" />
     <None Include="wwwroot\assets\img\demo\10.jpg" />
     <None Include="wwwroot\assets\img\demo\2.jpg" />
@@ -90,13 +77,6 @@
     <None Include="wwwroot\assets\img\screenshot-mundana-category.png" />
     <None Include="wwwroot\assets\img\screenshot-mundana.png" />
     <None Include="wwwroot\assets\js\functions.js" />
-    <None Include="wwwroot\assets\js\vendor\aos.js" />
-    <None Include="wwwroot\assets\js\vendor\bootstrap-toc.js" />
-    <None Include="wwwroot\assets\js\vendor\bootstrap.min.js" />
-    <None Include="wwwroot\assets\js\vendor\jquery.min.js" />
-    <None Include="wwwroot\assets\js\vendor\popper.min.js" />
-    <None Include="wwwroot\assets\js\vendor\prism.js" />
-    <None Include="wwwroot\assets\js\vendor\share.js" />
   </ItemGroup>
 
   <ItemGroup>
