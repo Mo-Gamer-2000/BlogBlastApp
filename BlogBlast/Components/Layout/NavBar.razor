@@ -1,4 +1,6 @@
-﻿<nav class="topnav navbar navbar-expand-lg navbar-light bg-white fixed-top">
+﻿@inject NavigationManager NavigationManager
+
+<nav class="topnav navbar navbar-expand-lg navbar-light bg-white fixed-top">
 	<div class="container">
 		<a class="navbar-brand" href="/"><strong>BlogBlast</strong></a>
 		<button class="navbar-toggler collapsed" type="button" aria-controls="navbar-menu-wrapper" aria-expanded="false" aria-label="Toggle navigation" onclick="toggleMenu(event)"> @* Call the toggleMenu Method and pass the event *@
@@ -24,22 +26,39 @@
 				<li class="nav-item">
 					<a class="nav-link" href="category">Collections</a>
 				</li>
-				<li class="nav-item">
-					<a class="nav-link" href="./about.html">About</a>
-				</li>
-				<li class="nav-item">
-					<a class="nav-link" href="./docs.html">Template <span class="badge badge-secondary">docs</span></a>
-				</li>
 			</ul>
 			<ul class="navbar-nav ml-auto d-flex align-items-center">
-				<li class="nav-item highlight">
-					<a class="nav-link" href="https://www.wowthemes.net/mundana-free-html-bootstrap-template/">Get this Theme</a>
-				</li>
+				
+				<AuthorizeView>
+					<Authorized>
+						<li class="nav-item">
+							<a class="nav-link" href="/">@context.User.Identity!.Name</a>
+						</li>
+						<li class="nav-item highlight">
+							<form action="Account/Logout" method="post">
+								<AntiforgeryToken />
+								<input type="hidden" name="ReturnUrl" value="@redirectURL" />
+								<button type="submit" class="nav-link">
+									<span class="bi bi-arrow-bar-left-nav-menu" aria-hidden="true"></span> Logout
+								</button>
+							</form>
+						</li>
+					</Authorized>
+					<NotAuthorized>
+						<li class="nav-item highlight">
+							<a class="nav-link" href="account/login">Login</a>
+						</li>
+					</NotAuthorized>
+				</AuthorizeView>
 			</ul>
 		</div>
 	</div>
 </nav>
 
 @code {
-
+	string redirectURL = string.Empty;
+	protected override void OnInitialized()
+	{
+		redirectURL = NavigationManager.ToBaseRelativePath(NavigationManager.BaseUri);
+	}
 }
