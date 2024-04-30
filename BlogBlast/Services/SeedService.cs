@@ -2,17 +2,8 @@
 using BlogBlast.Data.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 
 namespace BlogBlast.Services;
-
-/*internal static class AdminAccount
-{
-	public const string Name = "Moeez Abdul";
-	public const string Email = "Moeez@gmail.com";
-	public const string Role = "Admin";
-	public const string Password = "Admin24680!";
-}*/
 
 public interface ISeedService
 {
