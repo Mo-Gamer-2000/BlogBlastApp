@@ -1,6 +1,6 @@
 ﻿using BlogBlast.Data;
+using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Configuration;
 
 namespace BlogBlast.Services;
 
@@ -32,7 +32,7 @@ public class SeedService
 		// Check if this role (Admin) exists in our DB
         if (await _userManager.FindByNameAsync(AdminAccount.Role) is null)
         {
-            // This Admin role does not exist in the DB
+            // Check Admin role does not exist in the DB
 			// Then, create one
 			var adminRole = new IdentityRole(AdminAccount.Role);
 
@@ -41,12 +41,30 @@ public class SeedService
             if (!result.Succeeded)
             {
 				var errorMessage = result.Errors.Select(e => e.Description);
-				throw new Exception(string.Join(Environment.NewLine, errorMessage));
+				throw new Exception($"An Error Occurred While Creating an Admin Role {Environment.NewLine}{string.Join(Environment.NewLine, errorMessage)}");
             }
         }
 
-        // Seed Admin User
+		// Seed Admin User
 
-        // Seed Initial Categories
-    }
+		var adminUser = await _userManager.FindByEmailAsync(AdminAccount.Email);
+        if (adminUser is null)
+        {
+			// Check Admin user does not exist in the DB
+			// Then, create one
+			adminUser = new ApplicationUser();
+			adminUser.Name = AdminAccount.Name;
+			await _userStore.SetUserNameAsync(adminUser, AdminAccount.Email, CancellationToken.None);
+			var result = await _userManager.CreateAsync(adminUser, AdminAccount.Password);
+
+			// Check if Admin was not created
+			if (!result.Succeeded)
+			{
+				var errorMessage = result.Errors.Select(e => e.Description);
+				throw new Exception($"An Error Occurred While Creating an Admin User {Environment.NewLine}{string.Join(Environment.NewLine, errorMessage)}");
+			}
+		}
+
+		// Seed Initial Categories
+	}
 }
