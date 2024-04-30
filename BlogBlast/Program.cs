@@ -1,6 +1,7 @@
 using BlogBlast.Components;
 using BlogBlast.Components.Account;
 using BlogBlast.Data;
+using BlogBlast.Services;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -28,14 +29,20 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = false)
-    .AddEntityFrameworkStores<ApplicationDbContext>()
+builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = false) // Changed to false as I do not need this option
+	.AddRoles<IdentityRole>() // Call Identity Role - I have moved this up
+	.AddEntityFrameworkStores<ApplicationDbContext>()
     .AddSignInManager()
     .AddDefaultTokenProviders();
 
 builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
 
+builder.Services.AddTransient<ISeedService, SeedService>(); // I created Seed Service
+
 var app = builder.Build();
+
+// Called the method with services as parameter
+await SeedAsync(app.Services);
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -61,3 +68,11 @@ app.MapRazorComponents<App>()
 app.MapAdditionalIdentityEndpoints();
 
 app.Run();
+
+// Created Seed Async Method to create Service
+static async Task SeedAsync(IServiceProvider services)
+{
+    var scope = services.CreateScope();
+    var seedService = scope.ServiceProvider.GetRequiredService<ISeedService>();
+    await seedService.SeedDataAsync();
+}
