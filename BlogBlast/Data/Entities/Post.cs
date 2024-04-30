@@ -28,5 +28,4 @@ public class Post
     public DateTime? PublishedAt { get; set; }
 	public virtual Category Category { get; set;}
     public virtual ApplicationUser User { get; set; }
-
 }

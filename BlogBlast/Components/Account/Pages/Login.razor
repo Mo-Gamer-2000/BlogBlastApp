@@ -4,11 +4,13 @@
 @using Microsoft.AspNetCore.Authentication
 @using Microsoft.AspNetCore.Identity
 @using BlogBlast.Data
+@using System.Security.Claims
 
 @inject SignInManager<ApplicationUser> SignInManager
 @inject ILogger<Login> Logger
 @inject NavigationManager NavigationManager
 @inject IdentityRedirectManager RedirectManager
+@inject UserManager<ApplicationUser> UserManager /* IMPORTED USER MANAGER */
 
 <PageTitle>Log in</PageTitle>
 
@@ -85,31 +87,59 @@
         }
     }
 
-    public async Task LoginUser()
+    // Created method to check if the user exists
+    private async Task PerformLoginAsync()
     {
-        // This doesn't count login failures towards account lockout
-        // To enable password failures to trigger account lockout, set lockoutOnFailure: true
-        var result = await SignInManager.PasswordSignInAsync(Input.Email, Input.Password, Input.RememberMe, lockoutOnFailure: false);
-        if (result.Succeeded)
-        {
-            Logger.LogInformation("User logged in.");
-            RedirectManager.RedirectTo(ReturnUrl);
-        }
-        else if (result.RequiresTwoFactor)
-        {
-            RedirectManager.RedirectTo(
-                "Account/LoginWith2fa",
-                new() { ["returnUrl"] = ReturnUrl, ["rememberMe"] = Input.RememberMe });
-        }
-        else if (result.IsLockedOut)
-        {
-            Logger.LogWarning("User account locked out.");
-            RedirectManager.RedirectTo("Account/Lockout");
-        }
-        else
+        var user = await UserManager.FindByEmailAsync(Input.Email); // Get the user by Email
+        if(user is null)
         {
             errorMessage = "Error: Invalid login attempt.";
+            return;
         }
+
+        // If user excists
+        var result = await SignInManager.CheckPasswordSignInAsync(user, Input.Password, false); // Check the password
+                                                                                                // Check if the password was inccorrect
+        if(!result.Succeeded) 
+        {
+            errorMessage = "Error: Wrong password.";
+        }
+        // If now the user excists and password is correct then do this
+        // Used Claim Array to check Additional Claim
+        Claim[] additionalClaim = [new Claim(AppConstants.ClaimNames.FullName, user.Name)]; // Getting the user Name from App Constants
+        await SignInManager.SignInWithClaimsAsync(user, Input.RememberMe, additionalClaim);
+
+        Logger.LogInformation("User logged in.");
+        RedirectManager.RedirectTo(ReturnUrl);
+    }
+
+    public async Task LoginUser()
+    {
+        // Call the PerformLoginAsync method ^^^
+        await PerformLoginAsync();
+        // // This doesn't count login failures towards account lockout
+        // // To enable password failures to trigger account lockout, set lockoutOnFailure: true
+        // var result = await SignInManager.PasswordSignInAsync(Input.Email, Input.Password, Input.RememberMe, lockoutOnFailure: false);
+        // if (result.Succeeded)
+        // {
+        //     Logger.LogInformation("User logged in.");
+        //     RedirectManager.RedirectTo(ReturnUrl);
+        // }
+        // else if (result.RequiresTwoFactor)
+        // {
+        //     RedirectManager.RedirectTo(
+        //         "Account/LoginWith2fa",
+        //         new() { ["returnUrl"] = ReturnUrl, ["rememberMe"] = Input.RememberMe });
+        // }
+        // else if (result.IsLockedOut)
+        // {
+        //     Logger.LogWarning("User account locked out.");
+        //     RedirectManager.RedirectTo("Account/Lockout");
+        // }
+        // else
+        // {
+        //     errorMessage = "Error: Invalid login attempt.";
+        // }
     }
 
     private sealed class InputModel
