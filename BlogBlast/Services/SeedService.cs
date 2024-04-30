@@ -1,6 +1,7 @@
 ﻿using BlogBlast.Data;
-using Microsoft.AspNetCore.Components.Forms;
+using BlogBlast.Data.Entities;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace BlogBlast.Services;
 
@@ -65,6 +66,14 @@ public class SeedService
 			}
 		}
 
-		// Seed Initial Categories
+        // Seed Initial Categories
+		// Check if there is not category
+        if (!await _context.Categories.AsNoTracking().AnyAsync())
+        {
+			// Check if there is no categories in the DB
+			// Then, create category
+			await _context.Categories.AddRangeAsync(Category.GetSeedCategories());
+			await _context.SaveChangesAsync();
+		}
 	}
 }
