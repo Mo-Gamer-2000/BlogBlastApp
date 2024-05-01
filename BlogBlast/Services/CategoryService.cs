@@ -73,4 +73,10 @@ public class CategoryService
             return category; // and return the category
         });
     }
+
+    // Get category by slug method
+    public async Task<Category?> GetCategoryBySlugAsync(string slug) => 
+        await ExecuteOnContext(async context => 
+            await context.Categories.AsNoTracking().FirstOrDefaultAsync(c => c.Slug == slug) // return category by slug
+        );
 }
