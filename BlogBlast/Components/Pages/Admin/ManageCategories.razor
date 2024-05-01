@@ -11,9 +11,39 @@
 @* Render the admin header with a title and a button to add a new category *@
 <AdminHeader Title="Manage Categories">
     <ActionButtons>
-        <button type="button" class="btn btn-primary btn-sm">Add Category</button>
+        <button type="button" class="btn btn-primary btn-sm" @onclick="() => _operatingCategory = new()">Add Category</button>
     </ActionButtons>
 </AdminHeader>
+
+@* Conditional rendering: If _operatingCategory is not null, render the form to edit a category *@
+@if (_operatingCategory is not null)
+{
+    <div class="row">
+        <div class="col-sm-6"></div>
+        <div class="col-sm-6">
+            @* Edit form for the category, with input fields for name and visibility on navbar *@
+            <EditForm Model="_operatingCategory">
+                <DataAnnotationsValidator />
+                <div class="shadow">
+                    <div>
+                        <label class="form-label">Category Name</label>
+                        <InputText @bind-Value="_operatingCategory.Name" class="form-control form-control-sm" placeholder="Category Name" />
+                        <ValidationMessage For="() =>_operatingCategory.Name" />
+                        <label class="form-label">
+                            <InputCheckbox @bind-Value="_operatingCategory.VisibleOnNavbar" />
+                            Visible on Navbar
+                        </label>
+                    </div>
+                    <div>
+                        @* Buttons to save or cancel editing the category *@
+                        <button type="submit" class="btn btn-sm btn-success">Save</button>
+                        <button type="button" class="btn btn-sm btn-danger" @onclick="() => _operatingCategory = null">Cancel</button>
+                    </div>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+}
 
 @* Used the QuickGrid component to display categories in a grid format *@
 <QuickGrid Items="@_categories" Class="table table-bordered table-striped table-hover"> @* Binded categories *@
@@ -40,12 +70,14 @@
     </TemplateColumn>
     @* Defined a column for editing each category *@
     <TemplateColumn>
-        <button type="button" class="btn btn-sm btn-primary">Edit</button>
+        <button type="button" class="btn btn-sm btn-primary" @onclick="() => HandleEditCategory(context)">Edit</button>
     </TemplateColumn>
 </QuickGrid>
 
 
 @code {
+    private Category? _operatingCategory;
+
     // Initialise an empty queryable for categories
     private IQueryable<Category> _categories = Enumerable.Empty<Category>().AsQueryable();
 
@@ -64,4 +96,7 @@
         // Save the updated category asynchronously using the CategoryService
         await CategoryService.SaveCategoryAsync(category);
     }
+
+    // Method to handle editing a category
+    private void HandleEditCategory(Category category) => _operatingCategory = category;
 }
