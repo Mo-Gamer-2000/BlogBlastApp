@@ -1,13 +1,32 @@
 ﻿@page "/admin/manage-categories"
+@using BlogBlast.Data.Entities
+@using Microsoft.AspNetCore.Components.QuickGrid
 
 @inject ICategoryService CategoryService
 
+@* Rendering admin header with the title and button to create new category *@
 <AdminHeader Title="Manage Categories">
     <ActionButtons>
         <button type="button" class="btn btn-primary btn-sm">Add Category</button>
     </ActionButtons>
 </AdminHeader>
 
-@code {
+@* Used quickgrid component to display categories in a grid format *@
+<QuickGrid Items="@_categories">
+    @* Got columns for each property *@
+    <PropertyColumn Property="@(c=> c.Id)" />
+    <PropertyColumn Property="@(c=> c.Name)" />
+    <PropertyColumn Property="@(c=> c.Slug)" />
+    <PropertyColumn Property="@(c=> c.VisibleOnNavbar)" />
+</QuickGrid>
 
+@code {
+    // Created empty queryable for categories
+    private IQueryable<Category> _categories = Enumerable.Empty<Category>().AsQueryable();
+    // Overrided the OnInitializedAsync method to fetch categories from service
+    protected override async Task OnInitializedAsync()
+    {
+        // Fetched categories from CategoryService and populate _categories
+        _categories = (await CategoryService.GetCategoriesAsync()).AsQueryable();
+    }
 }
