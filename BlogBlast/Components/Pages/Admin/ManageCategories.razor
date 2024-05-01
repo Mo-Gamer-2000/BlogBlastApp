@@ -1,13 +1,102 @@
 ﻿@page "/admin/manage-categories"
+@using BlogBlast.Data.Entities
+@using Microsoft.AspNetCore.Components.QuickGrid
 
+@*^^ Disabled Pre-Rendering ^^*@
+@rendermode @(new InteractiveServerRenderMode(prerender: false)) 
+
+@* Injected the ICategoryService dependency into the component *@
 @inject ICategoryService CategoryService
 
+@* Render the admin header with a title and a button to add a new category *@
 <AdminHeader Title="Manage Categories">
     <ActionButtons>
-        <button type="button" class="btn btn-primary btn-sm">Add Category</button>
+        <button type="button" class="btn btn-primary btn-sm" @onclick="() => _operatingCategory = new()">Add Category</button>
     </ActionButtons>
 </AdminHeader>
 
-@code {
+@* Conditional rendering: If _operatingCategory is not null, render the form to edit a category *@
+@if (_operatingCategory is not null)
+{
+    <div class="row">
+        <div class="col-sm-6"></div>
+        <div class="col-sm-6">
+            @* Edit form for the category, with input fields for name and visibility on navbar *@
+            <EditForm Model="_operatingCategory">
+                <DataAnnotationsValidator />
+                <div class="shadow">
+                    <div>
+                        <label class="form-label">Category Name</label>
+                        <InputText @bind-Value="_operatingCategory.Name" class="form-control form-control-sm" placeholder="Category Name" />
+                        <ValidationMessage For="() =>_operatingCategory.Name" />
+                        <label class="form-label">
+                            <InputCheckbox @bind-Value="_operatingCategory.VisibleOnNavbar" />
+                            Visible on Navbar
+                        </label>
+                    </div>
+                    <div>
+                        @* Buttons to save or cancel editing the category *@
+                        <button type="submit" class="btn btn-sm btn-success">Save</button>
+                        <button type="button" class="btn btn-sm btn-danger" @onclick="() => _operatingCategory = null">Cancel</button>
+                    </div>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+}
 
+@* Used the QuickGrid component to display categories in a grid format *@
+<QuickGrid Items="@_categories" Class="table table-bordered table-striped table-hover"> @* Binded categories *@
+    @* Defined columns for the grid, mapping properties of the Category class *@
+    <PropertyColumn Property="@(c=> c.Id)" />
+    <PropertyColumn Property="@(c=> c.Name)" />
+    <PropertyColumn Property="@(c=> c.Slug)" />
+    @* Defined a custom column for the "Visible on Navbar" property *@
+        <TemplateColumn Title="Visible on Navbar">
+        @* Check if VisibleOnNavbar property is true or false for each category *@
+            @if(context.VisibleOnNavbar)
+        {
+            // If True, then display a checkbox with "Yes" label
+            <label class="text-success">
+                <input type="checkbox" @onchange="@(() => HandleVisibleOnNavbarChanged(context))" checked /> Yes
+            </label>
+        }else
+        {
+            // If False, then display a checkbox with "No" label
+            <label class="text-danger">
+                <input type="checkbox" @onchange="@(() => HandleVisibleOnNavbarChanged(context))" /> No
+            </label>
+        }
+    </TemplateColumn>
+    @* Defined a column for editing each category *@
+    <TemplateColumn>
+        <button type="button" class="btn btn-sm btn-primary" @onclick="() => HandleEditCategory(context)">Edit</button>
+    </TemplateColumn>
+</QuickGrid>
+
+
+@code {
+    private Category? _operatingCategory;
+
+    // Initialise an empty queryable for categories
+    private IQueryable<Category> _categories = Enumerable.Empty<Category>().AsQueryable();
+
+    // Override the OnInitializedAsync lifecycle method to fetch categories from the service
+    protected override async Task OnInitializedAsync()
+    {
+        // Fetched categories asynchronously from the CategoryService and populate _categories
+        _categories = (await CategoryService.GetCategoriesAsync()).AsQueryable();
+    }
+
+    // Method to handle the change of the "Visible on Navbar" property for a category
+    private async Task HandleVisibleOnNavbarChanged(Category category)
+    {
+        // Toggle the value of the VisibleOnNavbar property
+        category.VisibleOnNavbar = !category.VisibleOnNavbar;
+        // Save the updated category asynchronously using the CategoryService
+        await CategoryService.SaveCategoryAsync(category);
+    }
+
+    // Method to handle editing a category
+    private void HandleEditCategory(Category category) => _operatingCategory = category;
 }
