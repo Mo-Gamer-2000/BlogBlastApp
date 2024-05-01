@@ -37,7 +37,7 @@ builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.Requ
 
 builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
 
-builder.Services.AddTransient<ISeedService, SeedService>(); // I created Seed Service
+builder.Services.AddTransient<ISeedService, SeedService>().AddTransient<ICategoryService, CategoryService>(); // Registered Seed Service and Category Service
 
 var app = builder.Build();
 
