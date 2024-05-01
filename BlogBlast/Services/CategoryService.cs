@@ -3,7 +3,15 @@ using BlogBlast.Data.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace BlogBlast.Services;
-public class CategoryService
+
+public interface ICategoryService
+{
+    Task<Category[]> GetCategoriesAsync();
+    Task<Category?> GetCategoryBySlugAsync(string slug);
+    Task<Category> SaveCategoryAsync(Category category);
+}
+
+public class CategoryService : ICategoryService
 {
     private readonly IDbContextFactory<ApplicationDbContext> _contextFactory;
 
@@ -42,7 +50,7 @@ public class CategoryService
             {
                 // If the category = 0, which means it is a new category
                 //  Check if category exists in the DB
-                if (await context.Categories.AsNoTracking().AnyAsync(c=> c.Name == category.Name))
+                if (await context.Categories.AsNoTracking().AnyAsync(c => c.Name == category.Name))
                 {
                     // If the category exists with that name, then throw an error
                     throw new InvalidOperationException($"Category with the name provided: {category.Name} already exists!");
@@ -75,8 +83,8 @@ public class CategoryService
     }
 
     // Get category by slug method
-    public async Task<Category?> GetCategoryBySlugAsync(string slug) => 
-        await ExecuteOnContext(async context => 
+    public async Task<Category?> GetCategoryBySlugAsync(string slug) =>
+        await ExecuteOnContext(async context =>
             await context.Categories.AsNoTracking().FirstOrDefaultAsync(c => c.Slug == slug) // return category by slug
         );
 }
