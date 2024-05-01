@@ -12,12 +12,12 @@
 </AdminHeader>
 
 @* Used quickgrid component to display categories in a grid format *@
-<QuickGrid Items="@_categories">
+<QuickGrid Items="@_categories" Class="table table-bordered table-striped table-hover"> @* Binded categories *@
     @* Got columns for each property *@
     <PropertyColumn Property="@(c=> c.Id)" />
     <PropertyColumn Property="@(c=> c.Name)" />
     <PropertyColumn Property="@(c=> c.Slug)" />
-    <PropertyColumn Property="@(c=> c.VisibleOnNavbar)" />
+    <PropertyColumn Property="@(c=> c.VisibleOnNavbar)" Title="Visble on Navbar" />
 </QuickGrid>
 
 @code {
