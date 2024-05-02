@@ -50,7 +50,7 @@ public class CategoryService : ICategoryService
             {
                 // If the category = 0, which means it is a new category
                 //  Check if category exists in the DB
-                if (await context.Categories.AsNoTracking().AnyAsync(c => c.Name == category.Name))
+                if (await context.Categories.AsNoTracking().AnyAsync(c=> c.Name == category.Name))
                 {
                     // If the category exists with that name, then throw an error
                     throw new InvalidOperationException($"Category with the name provided: {category.Name} already exists!");
@@ -59,7 +59,6 @@ public class CategoryService : ICategoryService
                 // Create a slug for category
                 category.Slug = category.Name.ToSlug();
                 await context.Categories.AddAsync(category);
-                await context.SaveChangesAsync();
             }
             else
             {

@@ -8,9 +8,8 @@ public class Post
 
 	[Required, MaxLength(100)]
 	public string Title { get; set; }
-
-	[MaxLength(125)]
-	public string Slug { get; set; }
+    [MaxLength(125)]
+    public string Slug { get; set; }
 
 	[Required, MaxLength(100)]
 	public string Image { get; set; }
