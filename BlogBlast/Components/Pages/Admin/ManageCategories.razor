@@ -22,7 +22,7 @@
         <div class="col-sm-6"></div>
         <div class="col-sm-6">
             @* Edit form for the category, with input fields for name and visibility on navbar *@
-            <EditForm Model="_operatingCategory">
+            <EditForm Model="_operatingCategory" OnValidSubmit="SaveCategoryAsync">
                 <DataAnnotationsValidator />
                 <div class="shadow p-3" style="display: grid; grid-template-columns: auto 150px; grid-column-gap: 15px">
                     <div>
@@ -74,8 +74,15 @@
     </TemplateColumn>
 </QuickGrid>
 
+@if(_isLoading)
+{
+    <LoadingState LoadingText="@_loadingText" />
+}
 
 @code {
+    private bool _isLoading = true;
+    private string? _loadingText;
+
     private Category? _operatingCategory;
 
     // Initialise an empty queryable for categories
@@ -84,19 +91,38 @@
     // Override the OnInitializedAsync lifecycle method to fetch categories from the service
     protected override async Task OnInitializedAsync()
     {
+        _loadingText = "Fetching Categories!";
         // Fetched categories asynchronously from the CategoryService and populate _categories
         _categories = (await CategoryService.GetCategoriesAsync()).AsQueryable();
+        _isLoading = false;
     }
 
     // Method to handle the change of the "Visible on Navbar" property for a category
     private async Task HandleVisibleOnNavbarChanged(Category category)
     {
+        _loadingText = "Saving Changes!";
+        _isLoading = true;
         // Toggle the value of the VisibleOnNavbar property
         category.VisibleOnNavbar = !category.VisibleOnNavbar;
         // Save the updated category asynchronously using the CategoryService
         await CategoryService.SaveCategoryAsync(category);
+        _isLoading = false;
     }
 
     // Method to handle editing a category
     private void HandleEditCategory(Category category) => _operatingCategory = category.Clone(); // To assign a deep clone of the given category to the _operatingCategory field
+
+    // Method to save the Category
+    private async Task SaveCategoryAsync()
+    {
+        // Checking if the category is going to be null
+        if (_operatingCategory is not null)
+        {
+            _loadingText = "Saving Changes!";
+            _isLoading = true;
+            // Saving category
+            await CategoryService.SaveCategoryAsync(_operatingCategory);
+            _isLoading = false;
+        }
+    }
 }
