@@ -15,6 +15,11 @@
     </ActionButtons>
 </AdminHeader>
 
+@if (_isLoading)
+{
+    <LoadingState LoadingText="@_loadingText" />
+}
+
 @* Conditional rendering: If _operatingCategory is not null, render the form to edit a category *@
 @if (_operatingCategory is not null)
 {
@@ -22,21 +27,24 @@
         <div class="col-sm-6"></div>
         <div class="col-sm-6">
             @* Edit form for the category, with input fields for name and visibility on navbar *@
-            <EditForm Model="_operatingCategory">
+            <EditForm Model="_operatingCategory" OnValidSubmit="SaveCategoryAsync">
+                @* Adding Category does not work, it works if I change OnValidSubmit to OnInvalidSubmit - NEED TO FIX!!!*@
                 <DataAnnotationsValidator />
-                <div class="shadow">
+                <ValidationSummary />
+                <div class="shadow p-3" style="display: grid; grid-template-columns: auto 150px; grid-column-gap: 15px">
                     <div>
                         <label class="form-label">Category Name</label>
                         <InputText @bind-Value="_operatingCategory.Name" class="form-control form-control-sm" placeholder="Category Name" />
+                        @* <InputText bind-value="_op" class="form-control form-control-sm" placeholder="Category Name" /> *@
                         <ValidationMessage For="() =>_operatingCategory.Name" />
-                        <label class="form-label">
+                        <label class="form-label mt-2">
                             <InputCheckbox @bind-Value="_operatingCategory.VisibleOnNavbar" />
                             Visible on Navbar
                         </label>
                     </div>
-                    <div>
+                    <div class="d-flex flex-column">
                         @* Buttons to save or cancel editing the category *@
-                        <button type="submit" class="btn btn-sm btn-success">Save</button>
+                        <button type="submit" class="btn btn-sm btn-success mb-2">Save</button>
                         <button type="button" class="btn btn-sm btn-danger" @onclick="() => _operatingCategory = null">Cancel</button>
                     </div>
                 </div>
@@ -74,29 +82,59 @@
     </TemplateColumn>
 </QuickGrid>
 
-
 @code {
+    private bool _isLoading;
+    private string? _loadingText;
+
     private Category? _operatingCategory;
 
     // Initialise an empty queryable for categories
     private IQueryable<Category> _categories = Enumerable.Empty<Category>().AsQueryable();
 
-    // Override the OnInitializedAsync lifecycle method to fetch categories from the service
-    protected override async Task OnInitializedAsync()
+    // Override the OnInitializedAsync lifecycle method to load/fetch categories from the service
+    protected override async Task OnInitializedAsync() => await LoadCategoriesAsync();
+
+    // Load / fetch the categories again to be applied after editing     
+    private async Task LoadCategoriesAsync()
     {
+        _loadingText = "Fetching Categories!";
+        _isLoading = true;
         // Fetched categories asynchronously from the CategoryService and populate _categories
         _categories = (await CategoryService.GetCategoriesAsync()).AsQueryable();
+        _isLoading = false;
     }
 
     // Method to handle the change of the "Visible on Navbar" property for a category
     private async Task HandleVisibleOnNavbarChanged(Category category)
     {
+        _loadingText = "Saving Changes!";
+        _isLoading = true;
         // Toggle the value of the VisibleOnNavbar property
         category.VisibleOnNavbar = !category.VisibleOnNavbar;
         // Save the updated category asynchronously using the CategoryService
         await CategoryService.SaveCategoryAsync(category);
+        _isLoading = false;
     }
 
     // Method to handle editing a category
-    private void HandleEditCategory(Category category) => _operatingCategory = category;
+    private void HandleEditCategory(Category category) => _operatingCategory = category.Clone(); // To assign a deep clone of the given category to the _operatingCategory field
+
+    // Method to save the Category
+    private async Task SaveCategoryAsync()
+    {
+        // Checking if the category is going to be null
+        if (_operatingCategory is not null)
+        {
+            _loadingText = "Saving Changes!";
+            _isLoading = true;
+            // Saving category
+            await CategoryService.SaveCategoryAsync(_operatingCategory);
+            // Reset the operating category back to null
+            _operatingCategory = null;
+            _isLoading = false;
+
+            // Re-loading the categories after saving
+            await LoadCategoriesAsync();
+        }
+    }
 }
