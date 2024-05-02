@@ -7,6 +7,7 @@
 
 @* Injected the ICategoryService dependency into the component *@
 @inject ICategoryService CategoryService
+@inject NavigationManager NavigationManager
 
 @* Render the admin header with a title and a button to add a new category *@
 <AdminHeader Title="Manage Categories">
@@ -114,6 +115,8 @@
         // Save the updated category asynchronously using the CategoryService
         await CategoryService.SaveCategoryAsync(category);
         _isLoading = false;
+        NavigationManager.Refresh(); // Refresh method called from NavigationManager to Refresh the page immeadiatly 
+        // after change of visability status, on categories
     }
 
     // Method to handle editing a category
