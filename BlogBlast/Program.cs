@@ -37,7 +37,14 @@ builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.Requ
 
 builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
 
-builder.Services.AddTransient<ISeedService, SeedService>().AddTransient<ICategoryService, CategoryService>(); // Registered Seed Service and Category Service
+// Registering services in the dependency injection container
+builder.Services
+    // Registering SeedService for seeding data
+    .AddTransient<ISeedService, SeedService>()
+    // Registering CategoryService for managing categories
+    .AddTransient<ICategoryService, CategoryService>()
+    // Registering PostAdminService for managing blog posts
+    .AddTransient<IPostAdminService, PostAdminService>();
 
 var app = builder.Build();
 
