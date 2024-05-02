@@ -3,6 +3,7 @@ using BlogBlast.Data;
 using BlogBlast.Data.Entities;
 using BlogBlast.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Design.Internal;
 
 namespace BlogBlast.Services;
 
@@ -13,10 +14,10 @@ public interface IPostAdminService
     Task<PagedResult<Post>> GetBlogPostsAsync(int startIndex, int pageSize);
 
     // Method to fetch blog posts by their IDs
-    Task<Post[]> GetBlogPostsByIdAsync(int id);
+    Task<Post?> GetBlogPostsByIdAsync(int id);
 
     // Method to save a blog post
-    Task<Post[]> SaveBlogPostAsync(Post blogPost);
+    Task<Post> SaveBlogPostAsync(Post blogPost);
 }
 
 // Implementation of the blog post admin service interface
@@ -59,14 +60,17 @@ public class PostAdminService : IPostAdminService
         });
     }
 
-    // Method to fetch blog posts by their IDs (not implemented)
-    public Task<Post[]> GetBlogPostsByIdAsync(int id)
-    {
-        throw new NotImplementedException();
-    }
+    // Method to fetch blog posts by their IDs
+    public async Task<Post?> GetBlogPostsByIdAsync(int id) =>
+        await ExecuteOnContext(async context =>
+            await context.BlogPosts
+                .AsNoTracking()
+                .Include(b => b.Category)
+                .FirstOrDefaultAsync(b => b.Id == id)
+        );
 
     // Method to save a blog post (not implemented)
-    public Task<Post[]> SaveBlogPostAsync(Post blogPost)
+    public Task<Post> SaveBlogPostAsync(Post blogPost)
     {
         throw new NotImplementedException();
     }
