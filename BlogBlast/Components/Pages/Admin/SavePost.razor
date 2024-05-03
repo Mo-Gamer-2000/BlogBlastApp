@@ -8,6 +8,20 @@
 @inject IPostAdminService PostService
 @inject ICategoryService CategoryService
 
+@* Included CSS files for Quill rich text editor stylesheets. *@
+<HeadContent>
+    <link href="//cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet" />
+    <link href="//cdn.quilljs.com/1.3.6/quill.bubble.css" rel="stylesheet" />
+</HeadContent>
+
+@* Include JavaScript files for Quill rich text editor functionality.
+   These scripts include Blazored.TextEditor dependencies. *@
+<SectionContent SectionName="scripts">
+    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+    <script src="_content/Blazored.TextEditor/quill-blot-formatter.min.js"></script>
+    <script src="_content/Blazored.TextEditor/Blazored-BlazorQuill.js"></script>
+</SectionContent>
+
 @* Render the admin header with a title and a button to add a new post *@
 <AdminHeader Title="Create a new Post" />
 
