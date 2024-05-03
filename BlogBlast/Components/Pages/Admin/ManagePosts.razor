@@ -1,4 +1,6 @@
 ﻿@page "/admin/manage-posts"
+@using BlogBlast.Data.Entities
+@using Microsoft.AspNetCore.Components.QuickGrid
 
 @*^^ Disabled Pre-Rendering ^^*@
 @rendermode @(new InteractiveServerRenderMode(prerender: false))
@@ -13,12 +15,44 @@
     </ActionButtons>
 </AdminHeader>
 
+@* Check if the component is in a loading state and display a loading indicator if true *@
 @if (_isLoading)
 {
     <LoadingState LoadingText="@_loadingText" />
 }
 
+@* Used the QuickGrid component to display categories in a grid format *@
+<QuickGrid ItemsProvider="_postsProvider">
+    <PropertyColumn Property="@(b => b.Id)" /> @* Display post ID *@
+    <PropertyColumn Property="@(b => b.Title)" /> @* Display post Title *@
+</QuickGrid>
+
 @code {
+    // Declared private fields to manage loading state and display loading text
     private bool _isLoading;
     private string? _loadingText;
+
+    // Defined the page size for pagination
+    private const int PageSize = 10;
+
+    // Defined the provider for the QuickGrid component to fetch and display posts
+    private GridItemsProvider<Post> _postsProvider;
+
+    // Initialised the component when it is first rendered
+    protected override void OnInitialized()
+    {
+        // Defined the items provider for the QuickGrid component
+        _postsProvider = async request =>
+        {
+            // Set loading state to true and display loading text
+            _isLoading = true;
+            _loadingText = "Fetching Posts...";
+            // Fetching posts from the service based on the request parameters
+            PagedResult<Post> pagedBlogs = await PostService.GetBlogPostsAsync(request.StartIndex, request.Count ?? PageSize);
+            // Setting loading state to false
+            _isLoading = false;
+            // Returned the fetched posts and total count to be displayed by the QuickGrid component
+            return GridItemsProviderResult.From(pagedBlogs.Records, pagedBlogs.TotalCount);
+        };
+    }
 }
