@@ -1,5 +1,6 @@
 ﻿@page "/admin/manage-posts/new"
 @using BlogBlast.Data.Entities
+@using Blazored.TextEditor
 
 @*^^ Disabled Pre-Rendering ^^*@
 @rendermode @(new InteractiveServerRenderMode(prerender: false))
@@ -84,7 +85,53 @@
                 <button type="submit" class="btn btn-success">Create</button>
             </div>
         </div>
-        <div class="col-sm-6"></div>
+        @* Defined a rich text editor for content input using Blazored.TextEditor. 
+        The content is bound to the _model.Content property. *@
+        <div class="col-sm-6">
+            <div class="mb-3">
+                        <label class="form-label">Content: </label>=
+                        <BlazoredTextEditor @ref="@quillHtml" Placeholder="Enter content..."> @* Ref passed here *@
+                            <ToolbarContent>
+                        @* Select header leve *@
+                                <select class="ql-header">
+                                    <option selected=""></option>
+                                    <option value="1"></option>
+                                    <option value="2"></option>
+                                    <option value="3"></option>
+                                    <option value="4"></option>
+                                    <option value="5"></option>
+                                </select>
+                        @* Formatting options *@
+                                <span class="ql-formats">
+                                    <button class="ql-bold"></button>
+                                    <button class="ql-italic"></button>
+                                    <button class="ql-underline"></button>
+                                    <button class="ql-strike"></button>
+                                </span>
+                        @* Text and background color options *@
+                                <span class="ql-formats">
+                                    <select class="ql-color"></select>
+                                    <select class="ql-background"></select>
+                                </span>
+                        @* List options *@
+                                <span class="ql-formats">
+                                    <button class="ql-list" value="ordered"></button>
+                                    <button class="ql-list" value="bullet"></button>
+                                </span>
+                        @* Insert hyperlink *@
+                                <span class="ql-formats">
+                                    <button class="ql-link"></button>
+                                </span>
+                            </ToolbarContent>
+                    @* Display editor content *@
+                            <EditorContent>
+                                @((MarkupString)_model.Content)
+                            </EditorContent>
+                        </BlazoredTextEditor>
+                @* Display validation message for content *@
+                        <ValidationMessage For="()=> _model.Content" />
+                    </div>
+        </div>
     </div>
 </EditForm>
 
@@ -95,6 +142,9 @@
     private Post _model = new Post(); // Initialised a new Post model
 
     private Category[] _categories = [];// Initialised an array to store categories
+
+    // Declared a nullable BlazoredTextEditor field named quillHtml to pass as a ref ^^^
+    private BlazoredTextEditor? quillHtml;
 
     // Initialised the component asynchronously when it is first rendered
     protected override async Task OnInitializedAsync()
