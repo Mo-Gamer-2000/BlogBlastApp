@@ -11,7 +11,8 @@
 @* Render the admin header with a title and a button to add a new post *@
 <AdminHeader Title="Manage Posts">
     <ActionButtons>
-        <a href="admin/manage-posts/new" class="btn btn-primary btn-sm">Add Post</a>
+        <a href="admin/manage-posts/new" class="btn btn-primary btn-sm" data-enhance-nav="false">Add Post</a>
+        @* SOLUTION FOUND HERE: https://learn.microsoft.com/en-us/aspnet/core/blazor/fundamentals/routing?view=aspnetcore-8.0 *@
     </ActionButtons>
 </AdminHeader>
 
