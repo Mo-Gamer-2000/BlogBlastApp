@@ -1,0 +1,155 @@
+﻿@page "/admin/manage-posts/new"
+@using BlogBlast.Data.Entities
+@using Blazored.TextEditor
+
+@* Pre-Rendering - Solution had to enable pre-rending so the Rich text editor can reload from server *@
+@rendermode InteractiveServer
+
+@* Injected the IPostAdminService & ICategoryService dependency into the component *@
+@inject IPostAdminService PostService
+@inject ICategoryService CategoryService
+
+@* Included CSS files for Quill rich text editor stylesheets. *@
+<HeadContent>
+    <link href="//cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+    <link href="//cdn.quilljs.com/1.3.6/quill.bubble.css" rel="stylesheet">
+</HeadContent>
+
+@* Include JavaScript files for Quill rich text editor functionality.
+   These scripts include Blazored.TextEditor dependencies. *@
+<SectionContent SectionName="scripts">
+    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+    <script src="_content/Blazored.TextEditor/quill-blot-formatter.min.js"></script>
+    <script src="_content/Blazored.TextEditor/Blazored-BlazorQuill.js"></script>
+</SectionContent>
+
+@* Render the admin header with a title and a button to add a new post *@
+<AdminHeader Title="Create a new Post" />
+
+@* Check if the component is in a loading state and display a loading indicator if true *@
+@if (_isLoading)
+{
+    <LoadingState LoadingText="@_loadingText" />
+}
+
+@* Form Implimentation *@
+<EditForm Model="_model">
+    <DataAnnotationsValidator />
+    <div class="row">
+        <div class="col-sm-6">
+            @* Title Input *@
+            <div class="mb-3">
+                <label class="form-label">Title</label>
+                <InputText @bind-Value="_model.Title" class="form-control form-control-sm" placeholder="Post Title" />
+                <ValidationMessage For="() => _model.Title" class="text-danger" />
+            </div>
+            @* Category Input *@
+            <div class="mb-3">
+                <label class="form-label">Category</label>
+                <InputSelect @bind-Value="_model.CategoryId" class="form-control form-control-sm">
+                    <option value="0">Select Category</option>
+                    @foreach (var category in _categories)
+                    {
+                        <option value="@category.Id">@category.Name</option>
+                    }
+                </InputSelect>
+                <ValidationMessage For="() => _model.CategoryId" class="text-danger" />
+            </div>
+            @* Introduction Input *@
+            <div class="mb-3">
+                <label class="form-label">Introduction</label>
+                <InputText @bind-Value="_model.Introduction" class="form-control form-control-sm" placeholder="Post Introduction" />
+                <ValidationMessage For="() => _model.Introduction" class="text-danger" />
+            </div>
+            @* Upload Image Input *@
+            <div class="mb-3">
+                <label class="form-label d-block">Upload Image</label>
+                <InputFile />
+            </div>
+            @* Featured Checkbox *@
+            <div class="mb-3">
+                <label class="form-label ml-3">
+                    <InputCheckbox @bind-Value="_model.IsFeatured" class="form-check-input" />
+                    Featured
+                </label>
+            </div>
+            @* Published Checkbox *@
+            <div class="mb-3">
+                <label class="form-label ml-3">
+                    <InputCheckbox @bind-Value="_model.IsPublished" class="form-check-input" />
+                    Published
+                </label>
+            </div>
+            @* Create Button *@
+            <div class="mb-3">
+                <button type="submit" class="btn btn-success">Create</button>
+            </div>
+        </div>
+        @* Defined a rich text editor for content input using Blazored.TextEditor.
+        The content is bound to the _model.Content property. *@
+        <div class="col-sm-6 d-flex">
+            <div class="mb-3 flex-grow-1">
+                <label class="form-label">Content: </label>
+                <BlazoredTextEditor @ref="@quillHtml" Placeholder="Enter content..."> @* Ref passed here *@
+                    <ToolbarContent>
+                        @* Select header level *@
+                        <select class="ql-header">
+                            <option selected=""></option>
+                            <option value="1"></option>
+                            <option value="2"></option>
+                            <option value="3"></option>
+                            <option value="4"></option>
+                            <option value="5"></option>
+                        </select>
+                        @* Formatting options *@
+                        <span class="ql-formats">
+                            <button class="ql-bold"></button>
+                            <button class="ql-italic"></button>
+                            <button class="ql-underline"></button>
+                            <button class="ql-strike"></button>
+                        </span>
+                        @* Text and background color options *@
+                        <span class="ql-formats">
+                            <select class="ql-color"></select>
+                            <select class="ql-background"></select>
+                        </span>
+                        @* List options *@
+                        <span class="ql-formats">
+                            <button class="ql-list" value="ordered"></button>
+                            <button class="ql-list" value="bullet"></button>
+                        </span>
+                        @* Insert hyperlink *@
+                        <span class="ql-formats">
+                            <button class="ql-link"></button>
+                        </span>
+                    </ToolbarContent>
+                    @* Display editor content *@
+                    <EditorContent>
+                        @((MarkupString)_model.Content)
+                    </EditorContent>
+                </BlazoredTextEditor>
+                @* Display validation message for content *@
+                <ValidationMessage For="()=> _model.Content" />
+            </div>
+        </div>
+    </div>
+</EditForm>
+
+@code {
+    // Declared private fields to manage loading state and display loading text
+    private bool _isLoading;
+    private string? _loadingText;
+    private Post _model = new Post(); // Initialised a new Post model
+
+    private Category[] _categories = [];// Initialised an array to store categories
+
+    // Declared a nullable BlazoredTextEditor field named quillHtml, passed in the ref ^^^
+    private BlazoredTextEditor? quillHtml;
+
+    // Initialised the component asynchronously when it is first rendered
+    protected override async Task OnInitializedAsync()
+    {
+        // Fetching categories from the CategoryService
+        _categories = await CategoryService.GetCategoriesAsync();
+    }
+}

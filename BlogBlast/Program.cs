@@ -10,7 +10,9 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
-    .AddInteractiveServerComponents();
+    .AddInteractiveServerComponents(options => options.DetailedErrors = true);
+// Set DetailedErrors to true, to help debugging,
+// error where text editor is not rendering at 1st instance, but if page is refreshed, then it loads
 
 builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddScoped<IdentityUserAccessor>();
