@@ -21,11 +21,14 @@
     <LoadingState LoadingText="@_loadingText" />
 }
 
-@* Used the QuickGrid component to display categories in a grid format *@
-<QuickGrid ItemsProvider="_postsProvider">
+@* Used the QuickGrid component to display posts in a grid format *@
+<QuickGrid ItemsProvider="_postsProvider" Pagination="_paginationState">
     <PropertyColumn Property="@(b => b.Id)" /> @* Display post ID *@
     <PropertyColumn Property="@(b => b.Title)" /> @* Display post Title *@
 </QuickGrid>
+
+@* Included a paginator component to handle pagination *@
+<Paginator State="_paginationState" />
 
 @code {
     // Declared private fields to manage loading state and display loading text
@@ -34,6 +37,12 @@
 
     // Defined the page size for pagination
     private const int PageSize = 10;
+
+    // Defined Pagination State
+    private PaginationState _paginationState = new PaginationState 
+    { 
+            ItemsPerPage = PageSize // Set the number of items per page
+    };
 
     // Defined the provider for the QuickGrid component to fetch and display posts
     private GridItemsProvider<Post> _postsProvider;
