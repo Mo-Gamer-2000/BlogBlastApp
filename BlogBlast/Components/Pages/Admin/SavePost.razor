@@ -1,0 +1,15 @@
+﻿@page "/admin/manage-posts/new"
+
+@*^^ Disabled Pre-Rendering ^^*@
+@rendermode @(new InteractiveServerRenderMode(prerender: false))
+
+@* Injected the IPostAdminService & ICategoryService dependency into the component *@
+@inject IPostAdminService PostService
+@inject ICategoryService CategoryService
+
+@* Render the admin header with a title and a button to add a new post *@
+<AdminHeader Title="Create a new Post" />
+
+@code {
+    // Logic Goes Here
+}
