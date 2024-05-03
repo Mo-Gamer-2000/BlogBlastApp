@@ -1,5 +1,24 @@
-﻿<h3>ManagePosts</h3>
+﻿@page "/admin/manage-posts"
+
+@*^^ Disabled Pre-Rendering ^^*@
+@rendermode @(new InteractiveServerRenderMode(prerender: false))
+
+@* Injected the IPostAdminService dependency into the component *@
+@inject IPostAdminService PostService
+
+@* Render the admin header with a title and a button to add a new post *@
+<AdminHeader Title="Manage Posts">
+    <ActionButtons>
+        <a href="admin/manage-posts/new" class="btn btn-primary btn-sm">Add Post</a>
+    </ActionButtons>
+</AdminHeader>
+
+@if (_isLoading)
+{
+    <LoadingState LoadingText="@_loadingText" />
+}
 
 @code {
-
+    private bool _isLoading;
+    private string? _loadingText;
 }
