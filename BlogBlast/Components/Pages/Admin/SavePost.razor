@@ -154,7 +154,11 @@
     // Declared a nullable BlazoredTextEditor field named quillHtml, passed in the ref ^^^
     private BlazoredTextEditor? quillHtml;
 
+    // // Declared a nullable _imageUrl field to be used as the src attribute of the img element
     private string? _imageUrl;
+
+    // Declared a nullable _fileToUpload field to store the uploaded file
+    private IBrowserFile? _fileToUpload;
 
     // Initialised the component asynchronously when it is first rendered
     protected override async Task OnInitializedAsync()
@@ -163,15 +167,15 @@
         _categories = await CategoryService.GetCategoriesAsync();
     }
 
-    // Handled the asynchronous file upload process
-    private async Task FileUploadHandlerAsync(InputFileChangeEventArgs e)
+    // Asynchronously previews the uploaded image
+    private async Task PreviewImageAsync(IBrowserFile file)
     {
         // Extract the file extension
         // ex, .png or .jpg -> png or jpg - Skip the first index, which is 0 = .
-        var extension = Path.GetExtension(e.File.Name)[1..];
+        var extension = Path.GetExtension(file.Name)[1..];
 
         // Opened a stream to read the uploaded image
-        using var imageStream = e.File.OpenReadStream();
+        using var imageStream = file.OpenReadStream();
 
         // Initialised a memory stream to store the image data
         using MemoryStream ms = new();
@@ -180,7 +184,20 @@
         await imageStream.CopyToAsync(ms);
 
         // Constructd the image URL with base64-encoded image data
-        // Data:image/type;base64,(then the content of the image goes here) 
+        // Data:image/type;base64,(then the content of the image goes here)
         _imageUrl = $"data:image/{extension};base64,{Convert.ToBase64String(ms.ToArray())}";
+    }
+
+    // Handled the asynchronous file upload process
+    private async Task FileUploadHandlerAsync(InputFileChangeEventArgs e)
+    {
+        // Preview the uploaded image and assign the file to _fileToUpload
+        await PreviewImageAsync(e.File);
+        _fileToUpload = e.File;
+    }
+
+    private async Task SavePostAsync()
+    {
+        // Up next in the implementation
     }
 }
