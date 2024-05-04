@@ -61,10 +61,18 @@
                 <InputText @bind-Value="_model.Introduction" class="form-control form-control-sm" placeholder="Post Introduction" />
                 <ValidationMessage For="() => _model.Introduction" class="text-danger" />
             </div>
+            @* Defined a validation rule for CategoryId to ensure it starts from 1, preventing null categories *@
+            @if (!string.IsNullOrWhiteSpace(_imageUrl)) 
+            {
+                @* Displaying the uploaded image if the image URL is not empty *@
+                <div class="mb-3">
+                    <img src="@_imageUrl" style="height: 200px" alt="Uploaded Images" />
+                </div>
+            }
             @* Upload Image Input *@
             <div class="mb-3">
                 <label class="form-label d-block">Upload Image</label>
-                <InputFile />
+                <InputFile OnChange="FileUploadHandlerAsync" />
             </div>
             @* Featured Checkbox *@
             <div class="mb-3">
@@ -146,10 +154,33 @@
     // Declared a nullable BlazoredTextEditor field named quillHtml, passed in the ref ^^^
     private BlazoredTextEditor? quillHtml;
 
+    private string? _imageUrl;
+
     // Initialised the component asynchronously when it is first rendered
     protected override async Task OnInitializedAsync()
     {
         // Fetching categories from the CategoryService
         _categories = await CategoryService.GetCategoriesAsync();
+    }
+
+    // Handled the asynchronous file upload process
+    private async Task FileUploadHandlerAsync(InputFileChangeEventArgs e)
+    {
+        // Extract the file extension
+        // ex, .png or .jpg -> png or jpg - Skip the first index, which is 0 = .
+        var extension = Path.GetExtension(e.File.Name)[1..];
+
+        // Opened a stream to read the uploaded image
+        using var imageStream = e.File.OpenReadStream();
+
+        // Initialised a memory stream to store the image data
+        using MemoryStream ms = new();
+
+        // Copy the image data from the stream to the memory stream
+        await imageStream.CopyToAsync(ms);
+
+        // Constructd the image URL with base64-encoded image data
+        // Data:image/type;base64,(then the content of the image goes here) 
+        _imageUrl = $"data:image/{extension};base64,{Convert.ToBase64String(ms.ToArray())}";
     }
 }
