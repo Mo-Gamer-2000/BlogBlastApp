@@ -30,7 +30,7 @@
 </SectionContent>
 
 @* Renderd admin header with title and button to go back *@
-<AdminHeader Title="Create a new Post">
+<AdminHeader Title="@(Id.HasValue && Id > 0 ? "Edit Post" : "Create a New Post")">
     <ActionButtons>
         <NavLink href="/admin/manage-posts" class="btn btn-sm btn-primary">Go Back</NavLink>
     </ActionButtons>
@@ -178,7 +178,8 @@
     // Declare a nullable _fileToUpload field to store the uploaded file
     private IBrowserFile? _fileToUpload;
 
-    private string? _errorMessage; // Store error messages during async operations
+    // Store error messages during async operations
+    private string? _errorMessage; 
 
     // Initialises the component asynchronously when it is first rendered
     protected override async Task OnInitializedAsync()
@@ -261,6 +262,17 @@
         }
     }
 
+    private void DeleteExistingImage(string imageUrl)
+    {
+        var imagePath = imageUrl.Replace("/", "\\");
+        var fullPath = Path.Combine(WebHostEnvironment.WebRootPath, imagePath);
+        try
+        {
+            File.Delete(fullPath);
+        }
+        catch{}
+    }
+
     // Save the post asynchronously
     private async Task SavePostAsync()
     {
@@ -279,6 +291,9 @@
             _loadingText = "Saving Post";
             _isLoading = true;
 
+            // Declare a nullable _imageUrlToDelete to delete image
+            string? _imageUrlToDelete = null;
+
             // Upload the file if present and update the model with the image URL
             if (_fileToUpload is not null)
             {
@@ -286,6 +301,12 @@
                 if (uploadedFileUrl is null)
                     return;
 
+                // Checking if the id is greater then 0
+                if (_model.Id > 0 && !string.IsNullOrWhiteSpace(_model.Image))
+                {
+                    // Which means that, I am changing the image for the first time
+                    _imageUrlToDelete = _model.Image;
+                }
                 _model.Image = uploadedFileUrl;
             }
 
@@ -296,6 +317,13 @@
             // Save the post using the PostService
             await PostService.SaveBlogPostAsync(_model, userId);
             _fileToUpload = null;
+            // Checking if the url is not null
+            if(_imageUrlToDelete is not null)
+            {
+                // Then, I change the image for the post
+                // And, then remove the image from disc/physical location
+                DeleteExistingImage(_imageUrlToDelete);
+            }
             NavigationManager.NavigateTo("/admin/manage-posts", true); // Navigate to the manage-posts page
             return;
         }
