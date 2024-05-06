@@ -2,10 +2,10 @@
 @using BlogBlast.Data.Entities
 @using Microsoft.AspNetCore.Components.QuickGrid
 
-@*^^ Disabled Pre-Rendering ^^*@
-@rendermode @(new InteractiveServerRenderMode(prerender: false)) 
+@* Disabled Pre-Rendering *@
+@rendermode @(new InteractiveServerRenderMode(prerender: false))
 
-@* Injected the ICategoryService dependency into the component *@
+@* Injected the ICategoryService and NavigationManager dependencies into the component *@
 @inject ICategoryService CategoryService
 @inject NavigationManager NavigationManager
 
@@ -29,14 +29,13 @@
         <div class="col-sm-6">
             @* Edit form for the category, with input fields for name and visibility on navbar *@
             <EditForm Model="_operatingCategory" OnValidSubmit="SaveCategoryAsync">
-                @* Adding Category does not work, it works if I change OnValidSubmit to OnInvalidSubmit - NEED TO FIX!!!*@
+                @* Adding Category does not work, it works if I change OnValidSubmit to OnInvalidSubmit - FIXED!*@
                 <DataAnnotationsValidator />
                 <ValidationSummary />
                 <div class="shadow p-3" style="display: grid; grid-template-columns: auto 150px; grid-column-gap: 15px">
                     <div>
                         <label class="form-label">Category Name</label>
                         <InputText @bind-Value="_operatingCategory.Name" class="form-control form-control-sm" placeholder="Category Name" />
-                        @* <InputText bind-value="_op" class="form-control form-control-sm" placeholder="Category Name" /> *@
                         <ValidationMessage For="() =>_operatingCategory.Name" />
                         <label class="form-label mt-2">
                             <InputCheckbox @bind-Value="_operatingCategory.VisibleOnNavbar" />
@@ -55,23 +54,25 @@
 }
 
 @* Used the QuickGrid component to display categories in a grid format *@
-<QuickGrid Items="@_categories" Class="table table-bordered table-striped table-hover"> @* Binded categories *@
+<QuickGrid Items="@_categories" Class="table table-bordered table-striped table-hover">
+    @* Binded categories *@
     @* Defined columns for the grid, mapping properties of the Category class *@
     <PropertyColumn Property="@(c=> c.Id)" />
     <PropertyColumn Property="@(c=> c.Name)" />
     <PropertyColumn Property="@(c=> c.Slug)" />
     @* Defined a custom column for the "Visible on Navbar" property *@
-        <TemplateColumn Title="Visible on Navbar">
+    <TemplateColumn Title="Visible on Navbar">
         @* Check if VisibleOnNavbar property is true or false for each category *@
-            @if(context.VisibleOnNavbar)
+        @if (context.VisibleOnNavbar)
         {
-            // If True, then display a checkbox with "Yes" label
+                            // If True, then display a checkbox with "Yes" label
             <label class="text-success">
                 <input type="checkbox" @onchange="@(() => HandleVisibleOnNavbarChanged(context))" checked /> Yes
             </label>
-        }else
+        }
+        else
         {
-            // If False, then display a checkbox with "No" label
+                            // If False, then display a checkbox with "No" label
             <label class="text-danger">
                 <input type="checkbox" @onchange="@(() => HandleVisibleOnNavbarChanged(context))" /> No
             </label>
@@ -83,24 +84,28 @@
     </TemplateColumn>
 </QuickGrid>
 
+
 @code {
+    // Flag to indicate whether data is currently being loaded
     private bool _isLoading;
+    // Text to display while loading data
     private string? _loadingText;
 
+    // Currently selected category for operation
     private Category? _operatingCategory;
 
-    // Initialise an empty queryable for categories
+    // IQueryable to hold categories fetched from the service
     private IQueryable<Category> _categories = Enumerable.Empty<Category>().AsQueryable();
 
     // Override the OnInitializedAsync lifecycle method to load/fetch categories from the service
     protected override async Task OnInitializedAsync() => await LoadCategoriesAsync();
 
-    // Load / fetch the categories again to be applied after editing     
+    // Method to load/fetch categories asynchronously
     private async Task LoadCategoriesAsync()
     {
         _loadingText = "Fetching Categories!";
         _isLoading = true;
-        // Fetched categories asynchronously from the CategoryService and populate _categories
+        // Fetch categories asynchronously from the CategoryService and populate _categories
         _categories = (await CategoryService.GetCategoriesAsync()).AsQueryable();
         _isLoading = false;
     }
@@ -115,29 +120,30 @@
         // Save the updated category asynchronously using the CategoryService
         await CategoryService.SaveCategoryAsync(category);
         _isLoading = false;
-        NavigationManager.Refresh(); // Refresh method called from NavigationManager to Refresh the page immeadiatly 
-        // after change of visability status, on categories
+        NavigationManager.Refresh(); // Refresh method called from NavigationManager to Refresh the page immediately
+                                     // after change of visibility status, on categories
     }
 
     // Method to handle editing a category
-    private void HandleEditCategory(Category category) => _operatingCategory = category.Clone(); // To assign a deep clone of the given category to the _operatingCategory field
+    private void HandleEditCategory(Category category) => _operatingCategory = category.Clone(); // Assign a deep clone of the given category to the _operatingCategory field
 
-    // Method to save the Category
+    // Method to save the edited category
     private async Task SaveCategoryAsync()
     {
-        // Checking if the category is going to be null
+        // Checking if the operating category is not null
         if (_operatingCategory is not null)
         {
             _loadingText = "Saving Changes!";
             _isLoading = true;
-            // Saving category
+            // Save the edited category asynchronously using the CategoryService
             await CategoryService.SaveCategoryAsync(_operatingCategory);
             // Reset the operating category back to null
             _operatingCategory = null;
             _isLoading = false;
 
-            // Re-loading the categories after saving
+            // Re-load the categories after saving
             await LoadCategoriesAsync();
         }
     }
 }
+
