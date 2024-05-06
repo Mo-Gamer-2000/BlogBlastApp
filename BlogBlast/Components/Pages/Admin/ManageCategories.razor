@@ -102,7 +102,7 @@
     // Method to load/fetch categories asynchronously
     private async Task LoadCategoriesAsync()
     {
-        _loadingText = "Fetching Categories!";
+        _loadingText = "Fetching Categories";
         _isLoading = true;
         // Fetch categories asynchronously from the CategoryService and populate _categories
         _categories = (await CategoryService.GetCategoriesAsync()).AsQueryable();
@@ -112,7 +112,7 @@
     // Method to handle the change of the "Visible on Navbar" property for a category
     private async Task HandleVisibleOnNavbarChanged(Category category)
     {
-        _loadingText = "Saving Changes!";
+        _loadingText = "Saving Changes";
         _isLoading = true;
         // Toggle the value of the VisibleOnNavbar property
         category.VisibleOnNavbar = !category.VisibleOnNavbar;
@@ -132,7 +132,7 @@
         // Checking if the operating category is not null
         if (_operatingCategory is not null)
         {
-            _loadingText = "Saving Changes!";
+            _loadingText = "Saving Changes";
             _isLoading = true;
             // Save the edited category asynchronously using the CategoryService
             await CategoryService.SaveCategoryAsync(_operatingCategory);

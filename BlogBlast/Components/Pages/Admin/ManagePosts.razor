@@ -104,7 +104,7 @@
     private string? _loadingText;
 
     // Defined the page size for pagination
-    private const int PageSize = 10;
+    private const int PageSize = 5;
 
     // Defined Pagination State
     private PaginationState _paginationState = new PaginationState 
@@ -123,11 +123,15 @@
         {
             // Set loading state to true and display loading text
             _isLoading = true;
-            _loadingText = "Fetching Posts...";
+            _loadingText = "Fetching Posts";
+            // Explicitly telling blazor that the state has changed
+            StateHasChanged();
             // Fetching posts from the service based on the request parameters
             PagedResult<Post> pagedBlogs = await PostService.GetBlogPostsAsync(request.StartIndex, request.Count ?? PageSize);
             // Setting loading state to false
             _isLoading = false;
+            // Explicitly telling blazor that the state has changed
+            StateHasChanged();
             // Returned the fetched posts and total count to be displayed by the QuickGrid component
             return GridItemsProviderResult.From(pagedBlogs.Records, pagedBlogs.TotalCount);
         };
