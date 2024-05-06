@@ -29,7 +29,7 @@
     <script src="_content/Blazored.TextEditor/Blazored-BlazorQuill.js"></script>
 </SectionContent>
 
-@* Renderd admin header with title and button to go back *@
+@* Renderd admin header with dynamic title and button to go back *@
 <AdminHeader Title="@(Id.HasValue && Id > 0 ? "Edit Post" : "Create a New Post")">
     <ActionButtons>
         <NavLink href="/admin/manage-posts" class="btn btn-sm btn-primary">Go Back</NavLink>
@@ -236,25 +236,34 @@
         _fileToUpload = e.File;
     }
 
-    // Save the file to disk asynchronously
+    // Saves the file to disk asynchronously
     private async Task<string?> SaveFileToDiscAsync(IBrowserFile browserFile)
     {
+        // Generates a random file name and determines the file extension
         var randomFileName = Path.GetRandomFileName();
         var extension = Path.GetExtension(browserFile.Name);
+
+        // Constructs the folder path for saving the file
         var folderPath = Path.Combine(WebHostEnvironment.WebRootPath, "images", "posts");
         Directory.CreateDirectory(folderPath);
+
+        // Constructs the full file path
         var fileNamePath = Path.Combine("images", "posts", randomFileName + extension);
         var fullPath = Path.Combine(WebHostEnvironment.WebRootPath, fileNamePath);
+
+        // Opens a file stream to write the file
         await using FileStream fs = new FileStream(fullPath, FileMode.Create);
         try
         {
+            // Copies the file content to the file stream
             await browserFile.OpenReadStream().CopyToAsync(fs);
 
-            // Modify the path to conform to web conventions
+            // Modifies the path to conform to web conventions
             return fileNamePath.Replace("\\", "/");
         }
         catch (Exception ex)
         {
+            // Handles exceptions and sets error message
             _errorMessage = ex.Message;
             fs.Close();
 
@@ -262,16 +271,25 @@
         }
     }
 
+    // Deletes an existing image from the disk
     private void DeleteExistingImage(string imageUrl)
     {
+        // Converts the image URL to the corresponding file path
         var imagePath = imageUrl.Replace("/", "\\");
         var fullPath = Path.Combine(WebHostEnvironment.WebRootPath, imagePath);
+
         try
         {
+            // Deletes the image file from the disk
             File.Delete(fullPath);
         }
-        catch{}
+        catch (Exception ex)
+        {
+            // Handle the exception
+            Console.WriteLine($"Error deleting image file at path: {fullPath}. Exception: {ex}");
+        }
     }
+
 
     // Save the post asynchronously
     private async Task SavePostAsync()
