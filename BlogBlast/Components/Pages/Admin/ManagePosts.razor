@@ -9,6 +9,7 @@
 @rendermode @(new InteractiveServerRenderMode(prerender: false))
 
 @* Inject dependency for managing posts *@
+@inject AuthenticationStateProvider AuthStateProvider
 @inject IPostAdminService PostService
 
 @* Render the admin header with a title and a button to add a new post *@
@@ -85,7 +86,7 @@
     </TemplateColumn>
     <!-- Display button for editing each post -->
     <TemplateColumn>
-        <a href="admin/manage-blog-posts/edit/@context.Id" data-enhance-nav="false" class="btn btn-sm btn-primary">Edit</a>
+        <a href="admin/manage-posts/edit/@context.Id" data-enhance-nav="false" class="btn btn-sm btn-primary">Edit</a>
     </TemplateColumn>
 </QuickGrid>
 
@@ -104,7 +105,7 @@
     private string? _loadingText;
 
     // Defined the page size for pagination
-    private const int PageSize = 10;
+    private const int PageSize = 5;
 
     // Defined Pagination State
     private PaginationState _paginationState = new PaginationState 
@@ -123,11 +124,15 @@
         {
             // Set loading state to true and display loading text
             _isLoading = true;
-            _loadingText = "Fetching Posts...";
+            _loadingText = "Fetching Posts";
+            // Explicitly telling blazor that the state has changed
+            StateHasChanged();
             // Fetching posts from the service based on the request parameters
             PagedResult<Post> pagedBlogs = await PostService.GetBlogPostsAsync(request.StartIndex, request.Count ?? PageSize);
             // Setting loading state to false
             _isLoading = false;
+            // Explicitly telling blazor that the state has changed
+            StateHasChanged();
             // Returned the fetched posts and total count to be displayed by the QuickGrid component
             return GridItemsProviderResult.From(pagedBlogs.Records, pagedBlogs.TotalCount);
         };
@@ -136,14 +141,24 @@
     // Method to handle changes in the "Featured" property of a post
     private async Task HandleFeaturedChanged(Post post)
     {
-        // Implementation for handling changes in the "Featured" property
-        // This method will be expanded to include logic for updating the post's "Featured" status
+        post.IsFeatured = !post.IsFeatured;
+        await SaveChnagesAsync(post);
     }
 
     // Method to handle changes in the "Published" property of a post
     private async Task HandlePublishedChanged(Post post)
     {
-        // Implementation for handling changes in the "Published" property
-        // This method will be expanded to include logic for updating the post's "Published" status
+        post.IsPublished = !post.IsPublished;
+        await SaveChnagesAsync(post);
+    }
+
+    private async Task SaveChnagesAsync(Post post)
+    {
+        _loadingText = "Saving changes";
+        _isLoading = true;
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var userId = authState.User.GetUserId();
+        await PostService.SaveBlogPostAsync(post, userId);
+        _isLoading = false;
     }
 }
