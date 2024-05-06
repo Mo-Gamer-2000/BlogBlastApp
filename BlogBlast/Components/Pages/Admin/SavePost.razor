@@ -107,7 +107,7 @@
             }
             @* Create Button *@
             <div class="mb-3">
-                <button type="submit" class="btn btn-success">Create</button>
+                <button type="submit" class="btn btn-success">Save</button>
             </div>
         </div>
         @* Rich Text-Editor *@
@@ -180,12 +180,33 @@
 
     private string? _errorMessage; // Store error messages during async operations
 
-    // Initialise the component asynchronously when it is first rendered
+    // Initialises the component asynchronously when it is first rendered
     protected override async Task OnInitializedAsync()
     {
-        // Fetch categories from the CategoryService
+        // Fetches categories from the CategoryService
         _categories = await CategoryService.GetCategoriesAsync();
+
+        // Checks if the Id parameter is provided and greater than 0
+        if (Id.HasValue && Id > 0)
+        {
+            // Retrieves the post from the PostService based on the provided Id
+            var post = await PostService.GetBlogPostsByIdAsync(Id.Value);
+
+            // If the post is not found, navigates back to the manage-posts page
+            if (post is null)
+            {
+                NavigationManager.NavigateTo("/admin/manage-posts", replace: true);
+                return;
+            }
+
+            // Assigns the retrieved post to the _model variable
+            _model = post;
+
+            // Updates the _imageUrl with the post's image
+            _imageUrl = post.Image;
+        }
     }
+
 
     // Asynchronously preview the uploaded image
     private async Task PreviewImageAsync(IBrowserFile file)
