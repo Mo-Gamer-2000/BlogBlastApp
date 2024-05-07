@@ -12,7 +12,7 @@
                 </h6>
                 <!-- Display the author's name and category of the current post -->
                 <p class="text-muted">
-                    @post.User.Name in <a href="/category">@post.Category.Name</a>
+                    @post.User.Name in <a href="@post.Category.Slug-posts" title="@post.Category.Name Posts">@post.Category.Name</a>
                 </p>
             </span>
         </li>

@@ -41,7 +41,7 @@
                             </h2>
                             <div class="card-text text-muted small">
                                 <!-- Display the author's name and category of the current featured post -->
-                                @post.User.Name in <a href="/category">@post.Category.Name</a>
+                                @post.User.Name in <a href="@post.Category.Slug-posts" title="@post.Category.Name Posts">@post.Category.Name</a>
                             </div>
                             <!-- Display the publication date of the current featured post -->
                             <small class="text-muted">@post.PublishedAt.ToDisplay()</small>

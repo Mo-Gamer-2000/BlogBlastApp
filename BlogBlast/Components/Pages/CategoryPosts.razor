@@ -8,11 +8,11 @@
 
 <div class="container mt-5 mb-5">
     <div class="row">
+        @if(HasPosts) 
+        {
         <div class="col-md-8">
             <!-- Display section for featured posts -->
             <h5 class="font-weight-bold spanborder"><span>Featured in @_category?.Name</span></h5>
-            @if (_featured is not null)
-            {
                 <div class="card border-0 mb-5 box-shadow">
                     <div style="background-image: url(@_featured.Image); height: 350px; background-size: cover; background-repeat: no-repeat;">
                     </div>
@@ -29,12 +29,22 @@
                         </div>
                     </div>
                 </div>
-            }
             <!-- Display section for latest blogs -->
             <h5 class="font-weight-bold spanborder"><span>Latest Blogs</span></h5>
             <BlogPostList Posts="_latest" />
-        </div>
+            </div>
+        }
+        else
+        {
+            <!-- Display section for featured posts -->
+            <h5 class="font-weight-bold spanborder"><span>@_category?.Name Posts</span></h5>
+            <div class="card border-0 m-5 box-shadow">
+                <p class="p-5 text-center font-weight-bold" style="font-size: 25px; color:red; text-decoration:underline">Currently, there is no Blog Posts for @_category?.Name Category.</p>
+            </div>
+        }
         <!-- Sidebar section -->
+        @if (HasPosts) 
+        {
         <div class="col-md-4 pl-4">
             <div class="sticky-top">
                 <!-- Display section for popular posts -->
@@ -42,6 +52,7 @@
                 <PopularBlogPosts Posts="_popular" />
             </div>
         </div>
+        }
     </div>
 </div>
 
@@ -60,6 +71,9 @@
     private Post? _featured;
     private Post[] _popular = [];
     private Post[] _latest = [];
+
+    // If featured is null, which means there is no blogs in this category
+    private bool HasPosts => _featured is not null; 
 
     // Method invoked when the component is initialised
     protected override async Task OnInitializedAsync()
