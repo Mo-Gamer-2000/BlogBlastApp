@@ -37,11 +37,31 @@ namespace BlogBlast.Services
         /// Retrieves featured posts asynchronously.
         /// </summary>
         /// <param name="count">The number of featured posts to retrieve.</param>
-        /// <param name="categoryId">The ID of the category (optional).</param>
+        /// <param name="categoryId">The ID of the category to filter by (optional).</param>
         /// <returns>An array of featured posts.</returns>
         public async Task<Post[]> GetFeaturedPostsAsync(int count, int categoryId = 0)
         {
+            // Executes the query asynchronously within the context and returns the result
+            return await QueryOnContextAsync(async context =>
+            {
+                // Construct the initial query to retrieve featured posts
+                var query = context.BlogPosts
+                                   .AsNoTracking()
+                                   .Include(p => p.Category) // Include related category information
+                                   .Include(b => b.User)     // Include related user information
+                                   .Where(b => b.IsPublished && b.IsFeatured); // Filter by published and featured status
 
+                // If a categoryId is specified, filter the query by that category
+                if (categoryId > 0)
+                {
+                    query = query.Where(b => b.CategoryId == categoryId);
+                }
+
+                // Order the results randomly and take the specified number of posts
+                return await query.OrderBy(_ => Guid.NewGuid())
+                                  .Take(count)
+                                  .ToArrayAsync();
+            });
         }
 
         /// <summary>
