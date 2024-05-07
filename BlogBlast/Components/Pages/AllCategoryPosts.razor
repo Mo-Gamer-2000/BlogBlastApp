@@ -16,7 +16,7 @@
                 @if (_pageNumber > 1)
                 {
                     var prevPageUrl = $"{CategorySlug}-posts/all";
-                    @if(_pageNumber > 2)
+                    @if (_pageNumber > 2)
                     {
                         prevPageUrl += $"/page-{_pageNumber - 1}";
                     }
@@ -27,7 +27,7 @@
                     <span>&nbsp;</span>
                 }
 
-                @if(_posts.Length == PageSize)
+                @if (_posts.Length == PageSize)
                 {
                     <a href="@CategorySlug-posts/all/page-@(_pageNumber + 1)" class="btn btn-sm btn-outline-primary">Next</a>
                 }
@@ -73,13 +73,16 @@
     /// </summary>
     protected override async Task OnInitializedAsync()
     {
-        if(UriPageNumber.HasValue)
+        // If UriPageNumber is provided in the URI
+        if (UriPageNumber.HasValue)
         {
-            if(UriPageNumber < 2)
+            // Check if the provided page number is less than 2, if so, redirect to the first page of the category
+            if (UriPageNumber < 2)
             {
                 NavigationManager.NavigateTo($"{CategorySlug}-posts/all", replace: true);
                 return;
             }
+            // Assign the provided page number to the _pageNumber variable
             _pageNumber = UriPageNumber.Value;
         }
         // Fetch category by slug from the backend

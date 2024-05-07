@@ -9,51 +9,62 @@
 <div class="container mt-5 mb-5">
     <div class="row">
         <div class="col-md-8">
+            <!-- Checks if there are any posts in the category -->
             @if (HasPosts)
             {
                 <!-- Display section for featured posts -->
                 <h5 class="font-weight-bold spanborder"><span>Featured in @_category?.Name</span></h5>
                 <div class="card border-0 mb-5 box-shadow">
+                    <!-- Featured post image -->
                     <div style="background-image: url(@_featured.Image); height: 350px; background-size: cover; background-repeat: no-repeat;">
                     </div>
                     <div class="card-body px-0 pb-0 d-flex flex-column align-items-start">
+                        <!-- Featured post title -->
                         <h2 class="h2 font-weight-bold">
                             <a class="text-dark" href="posts/@_featured.Slug">@_featured.Title</a>
                         </h2>
+                        <!-- Featured post introduction -->
                         <p class="card-text">
                             @_featured.Introduction
                         </p>
                         <div>
+                            <!-- Featured post author -->
                             <small class="d-block">@_featured.User.Name</small>
+                            <!-- Featured post publication date -->
                             <small class="text-muted">@_featured.PublishedAt.ToDisplay()</small>
                         </div>
                     </div>
                 </div>
                 <!-- Display section for latest blogs -->
                 <h5 class="font-weight-bold spanborder"><span>Latest Blogs</span></h5>
+                <!-- Renders the list of latest blog posts -->
                 <BlogPostList Posts="_latest" />
                 <hr />
                 <div class="text-center">
+                    <!-- Link to view all posts in the category -->
                     <p class="font-weight-bold">Click for more ➡️ <a href="@categorySlug-posts/all" class="btn btn-sm btn-outline-primary">All @_category?.Name Posts</a></p>
                 </div>
                 <hr />
             }
             else
             {
-                <!-- Display section for featured posts -->
+                <!-- Display section when there are no posts in the category -->
                 <h5 class="font-weight-bold spanborder"><span>@_category?.Name Posts</span></h5>
                 <div class="card border-0 m-5 box-shadow">
+                    <!-- Message indicating no posts in the category -->
                     <p class="p-5 text-center font-weight-bold" style="font-size: 25px; color:red; text-decoration:underline">Currently, there is no Blog Posts for @_category?.Name Category.</p>
                 </div>
             }
         </div>
         <!-- Sidebar section -->
+        <!-- Renders the sidebar only if there are any posts in the category -->
         @if (HasPosts)
         {
             <div class="col-md-4 pl-4">
                 <div class="sticky-top">
                     <!-- Display section for popular posts -->
                     <h5 class="font-weight-bold spanborder"><span>Popular in @_category?.Name</span></h5>
+                    <!-- Renders the list of popular blog posts -->
                     <PopularBlogPosts Posts="_popular" />
                 </div>
             </div>
@@ -63,6 +74,7 @@
 
 <!-- Subscribe section -->
 <div class="container pt-4 pb-4">
+    <!-- Renders the SubscribeHeroSection component -->
     <SubscribeHeroSection />
 </div>
 
@@ -77,7 +89,7 @@
     private Post[] _popular = []; // Array to store popular posts in the current category.
     private Post[] _latest = []; // Array to store latest posts in the current category.
 
-    // Checks if there are any posts in the category.
+    // Checks if there are any posts in the category
     private bool HasPosts => _featured is not null;
 
     /// <summary>
