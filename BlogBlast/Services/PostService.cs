@@ -72,7 +72,27 @@ namespace BlogBlast.Services
         /// <returns>An array of popular posts.</returns>
         public async Task<Post[]> GetPopularPostsAsync(int count, int categoryId = 0)
         {
+            // Executes the query asynchronously within the context and returns the result
+            return await QueryOnContextAsync(async context =>
+            {
+                // Construct the initial query to retrieve featured posts
+                var query = context.BlogPosts
+                                   .AsNoTracking()
+                                   .Include(p => p.Category) // Include related category information
+                                   .Include(b => b.User)     // Include related user information
+                                   .Where(b => b.IsPublished); // Filter by published status
 
+                // If a categoryId is specified, filter the query by that category
+                if (categoryId > 0)
+                {
+                    query = query.Where(b => b.CategoryId == categoryId);
+                }
+
+                // Order the results by descending (From Most to Least - View Counts) and take the specified number of posts
+                return await query.OrderByDescending(b => b.ViewCount)
+                                  .Take(count)
+                                  .ToArrayAsync();
+            });
         }
 
         /// <summary>
