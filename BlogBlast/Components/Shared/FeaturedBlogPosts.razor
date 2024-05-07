@@ -12,7 +12,7 @@
                 <div class="card-body px-0 pb-0 d-flex flex-column align-items-start">
                     <!-- Display the title of the first featured post -->
                     <h2 class="h4 font-weight-bold">
-                        <a class="text-dark" href="details">@_First.Title</a>
+                        <a class="text-dark" href="posts/@_First.Slug">@_First.Title</a>
                     </h2>
                     <!-- Display the introduction of the first featured post -->
                     <p class="card-text">
@@ -37,7 +37,7 @@
                         <div class="pl-3">
                             <!-- Display the title of the current featured post -->
                             <h2 class="mb-2 h6 font-weight-bold">
-                                <a class="text-dark" href="details">@post.Title</a>
+                                <a class="text-dark" href="posts/@_First.Slug">@post.Title</a>
                             </h2>
                             <div class="card-text text-muted small">
                                 <!-- Display the author's name and category of the current featured post -->
