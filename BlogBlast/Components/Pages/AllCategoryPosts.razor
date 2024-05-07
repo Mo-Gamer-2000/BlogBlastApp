@@ -1,0 +1,106 @@
+﻿@page "/{categorySlug}-posts/all"
+@page "/{categorySlug}-posts/all/page-{uriPageNumber:int}"
+@using BlogBlast.Data.Entities
+@inject NavigationManager NavigationManager
+@inject IPostService PostService
+@inject ICategoryService CategoryService
+
+<div class="container mt-5 mb-5">
+    <div class="row">
+        <div class="col-md-8">
+            <!-- Display section for featured posts -->
+            <h5 class="font-weight-bold spanborder"><span>@_category?.Name Posts @(_pageNumber > 1 ? $"Page - {_pageNumber}" : "")</span></h5>
+            <BlogPostList Posts="_posts" />
+            <hr />
+            <div class="d-flex justify-content-between">
+                @if (_pageNumber > 1)
+                {
+                    var prevPageUrl = $"{CategorySlug}-posts/all";
+                    @if(_pageNumber > 2)
+                    {
+                        prevPageUrl += $"/page-{_pageNumber - 1}";
+                    }
+                    <a href="@prevPageUrl" class="btn btn-sm btn-outline-primary">Previous</a>
+                }
+                else
+                {
+                    <span>&nbsp;</span>
+                }
+
+                @if(_posts.Length == PageSize)
+                {
+                    <a href="@CategorySlug-posts/all/page-@(_pageNumber + 1)" class="btn btn-sm btn-outline-primary">Next</a>
+                }
+            </div>
+            <hr />
+        </div>
+        <!-- Sidebar section -->
+        <div class="col-md-4 pl-4">
+            <div class="sticky-top">
+                <!-- Display section for popular posts -->
+                <h5 class="font-weight-bold spanborder"><span>Popular in @_category?.Name</span></h5>
+                <PopularBlogPosts Posts="_popularPosts" />
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Subscribe section -->
+<div class="container pt-4 pb-4">
+    <SubscribeHeroSection />
+</div>
+
+@code {
+    // Define parameter for category slug
+    [Parameter]
+    public string CategorySlug { get; set; }
+    // Define parameter for page number in URI
+    [Parameter]
+    public int? UriPageNumber { get; set; }
+    // Stores the fetched category information.
+    private Category _category;
+    // Array to store all posts in the current category.
+    private Post[] _posts = [];
+    // Array to store popular posts in the current category.
+    private Post[] _popularPosts = [];
+    // Defines the current page number.
+    private int _pageNumber = 1;
+    // Defines the number of posts per page.
+    private const int PageSize = 2;
+
+    /// <summary>
+    /// Executes when the component is initialized.
+    /// </summary>
+    protected override async Task OnInitializedAsync()
+    {
+        if(UriPageNumber.HasValue)
+        {
+            if(UriPageNumber < 2)
+            {
+                NavigationManager.NavigateTo($"{CategorySlug}-posts/all", replace: true);
+                return;
+            }
+            _pageNumber = UriPageNumber.Value;
+        }
+        // Fetch category by slug from the backend
+        var category = await CategoryService.GetCategoryBySlugAsync(CategorySlug);
+        // If category is null, redirect to home page
+        if (category is null)
+        {
+            NavigationManager.NavigateTo("/", replace: true);
+            return;
+        }
+        // Assign fetched category to _category variable
+        _category = category;
+
+        // Fetch popular and featured posts for the category asynchronously
+        var posts = await Task.WhenAll(
+            PostService.GetPopularPostsAsync(5, _category.Id),
+            PostService.GetAllPostsAsync(_pageNumber - 1, PageSize, _category.Id)
+        );
+
+        // Assign fetched posts to corresponding variables
+        _popularPosts = posts[0];
+        _posts = posts[1];
+    }
+}
