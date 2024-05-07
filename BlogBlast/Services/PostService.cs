@@ -6,9 +6,46 @@ using Microsoft.EntityFrameworkCore;
 namespace BlogBlast.Services
 {
     /// <summary>
+    /// Represents the interface for managing posts.
+    /// </summary>
+    public interface IPostService
+    {
+        /// <summary>
+        /// Retrieves featured posts asynchronously.
+        /// </summary>
+        /// <param name="count">The number of featured posts to retrieve.</param>
+        /// <param name="categoryId">The ID of the category (optional).</param>
+        /// <returns>An array of featured posts.</returns>
+        Task<Post[]> GetFeaturedPostsAsync(int count, int categoryId = 0);
+
+        /// <summary>
+        /// Retrieves latest posts asynchronously.
+        /// </summary>
+        /// <param name="count">The number of latest posts to retrieve.</param>
+        /// <param name="categoryId">The ID of the category (optional).</param>
+        /// <returns>An array of latest posts.</returns>
+        Task<Post[]> GetLatestPostsAsync(int count, int categoryId = 0);
+
+        /// <summary>
+        /// Retrieves popular posts asynchronously.
+        /// </summary>
+        /// <param name="count">The number of popular posts to retrieve.</param>
+        /// <param name="categoryId">The ID of the category (optional).</param>
+        /// <returns>An array of popular posts.</returns>
+        Task<Post[]> GetPopularPostsAsync(int count, int categoryId = 0);
+
+        /// <summary>
+        /// Retrieves a post by its slug asynchronously.
+        /// </summary>
+        /// <param name="slug">The slug of the post.</param>
+        /// <returns>A detailed page model of the post.</returns>
+        Task<DetailPageModel> GetPostBySlugAsync(string slug);
+    }
+
+    /// <summary>
     /// Service class for managing posts.
     /// </summary>
-    public class PostService
+    public class PostService : IPostService
     {
         private readonly IDbContextFactory<ApplicationDbContext> _contextFactory;
 

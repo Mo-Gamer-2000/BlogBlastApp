@@ -46,7 +46,9 @@ builder.Services
     // Registering CategoryService for managing categories
     .AddTransient<ICategoryService, CategoryService>()
     // Registering PostAdminService for managing blog posts
-    .AddTransient<IPostAdminService, PostAdminService>();
+    .AddTransient<IPostAdminService, PostAdminService>()
+    // Registering PostService for displaying blog posts
+    .AddTransient<IPostService, PostService>();
 
 var app = builder.Build();
 
