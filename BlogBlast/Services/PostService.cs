@@ -133,7 +133,35 @@ namespace BlogBlast.Services
         /// <returns>A detailed page model of the post.</returns>
         public async Task<DetailPageModel> GetPostBySlugAsync(string slug)
         {
+            // Executes the query asynchronously within the context and returns the result
+            return await QueryOnContextAsync(async context =>
+            {
+                // Retrieve the blog post with the specified slug and that is published
+                var blogPost = await context.BlogPosts
+                                        .AsNoTracking()
+                                        .Include(b => b.Category) // Include related category information
+                                        .Include(b => b.User)     // Include related user information
+                                        .FirstOrDefaultAsync(b => b.Slug == slug && b.IsPublished);
 
+                // If no matching post is found, return an empty DetailPageModel
+                if (blogPost is null)
+                {
+                    return DetailPageModel.Empty();
+                }
+
+                // Retrieve related posts from the same category, excluding the current post, and randomize the order
+                var relatedPosts = await context.BlogPosts
+                                              .AsNoTracking()
+                                              .Include(b => b.Category) // Include related category information
+                                              .Include(b => b.User)     // Include related user information
+                                              .Where(b => b.CategoryId == blogPost.CategoryId && b.IsPublished && b.Id != blogPost.Id)
+                                              .OrderBy(_ => Guid.NewGuid())
+                                              .Take(4)
+                                              .ToArrayAsync();
+
+                // Create a DetailPageModel instance with the retrieved blog post and related posts
+                return new DetailPageModel(blogPost, relatedPosts);
+            });
         }
     }
 }
