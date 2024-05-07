@@ -1,0 +1,50 @@
+﻿@page "/{categorySlug}-posts/all"
+@page "/{categorySlug}-posts/all/page-{uriPageNumber:int}"
+@using BlogBlast.Data.Entities
+@inject NavigationManager NavigationManager
+@inject IPostService PostService
+@inject ICategoryService CategoryService
+
+<h3>AllCategoryPosts</h3>
+
+@code {
+    [Parameter]
+    public string CategorySlug { get; set; }
+    [Parameter]
+    public int UriPageNumber { get; set; }
+    // Stores the fetched category information.
+    private Category _category; 
+    // Array to store all posts in the current category.
+    private Post[] _posts = []; 
+    // Array to store popular posts in the current category.
+    private Post[] _popularPosts = []; 
+    // Defines the number of posts per page.
+    private const int PageSize = 5; 
+
+    /// <summary>
+    /// Executes when the component is initialised.
+    /// </summary>
+    protected override async Task OnInitializedAsync()
+    {
+        // Fetch category by slug from the backend
+        var category = await CategoryService.GetCategoryBySlugAsync(categorySlug);
+        // If category is null, redirect to home page
+        if (category is null)
+        {
+            NavigationManager.NavigateTo("/", replace: true);
+            return;
+        }
+        // Assign fetched category to _category variable
+        _category = category;
+
+        // Fetch popular and featured posts for the category asynchronously
+        var posts = await Task.WhenAll(
+            PostService.GetPopularPostsAsync(5, _category.Id),
+            PostService.GetFeaturedPostsAsync(1, _category.Id)
+        );
+
+        // Assign fetched posts to corresponding variables
+        _popularPosts = posts[0];
+        _posts = posts[1];
+    }
+}
