@@ -1,44 +1,104 @@
-﻿@page "/category"
+﻿@page "/{categorySlug}-posts"
 
-<!--------------------------------------
-Main
---------------------------------------->
+@using BlogBlast.Data.Entities
+
+@inject NavigationManager NavigationManager
+@inject IPostService PostService
+@inject ICategoryService CategoryService
+
 <div class="container mt-5 mb-5">
-	<div class="row">
-		<div class="col-md-8">
-			<h5 class="font-weight-bold spanborder"><span>Featured in Science</span></h5>
-			<div class="card border-0 mb-5 box-shadow">
-				<div style="background-image: url(./assets/img/demo/1.jpg); height: 350px; background-size: cover; background-repeat: no-repeat;">
-				</div>
-				<div class="card-body px-0 pb-0 d-flex flex-column align-items-start">
-					<h2 class="h2 font-weight-bold">
-						<a class="text-dark" href="./article.html">Brain Stimulation Relieves Depression Symptoms</a>
-					</h2>
-					<p class="card-text">
-						Researchers have found an effective target in the brain for electrical stimulation to improve mood in people suffering from depression.
-					</p>
-					<div>
-						<small class="d-block"><a class="text-muted" href="./author.html">Favid Rick</a></small>
-						<small class="text-muted">Dec 12 · 5 min read</small>
-					</div>
-				</div>
-			</div>
-			<h5 class="font-weight-bold spanborder"><span>Latest</span></h5>
-			<BlogPostList />
-		</div>
-		<div class="col-md-4 pl-4">
-			<div class="sticky-top">
-				<h5 class="font-weight-bold spanborder"><span>Popular in Science</span></h5>
-				<PopularBlogPosts />
-			</div>
-		</div>
-	</div>
+    <div class="row">
+        @if(HasPosts) 
+        {
+        <div class="col-md-8">
+            <!-- Display section for featured posts -->
+            <h5 class="font-weight-bold spanborder"><span>Featured in @_category?.Name</span></h5>
+                <div class="card border-0 mb-5 box-shadow">
+                    <div style="background-image: url(@_featured.Image); height: 350px; background-size: cover; background-repeat: no-repeat;">
+                    </div>
+                    <div class="card-body px-0 pb-0 d-flex flex-column align-items-start">
+                        <h2 class="h2 font-weight-bold">
+                            <a class="text-dark" href="posts/@_featured.Slug">@_featured.Title</a>
+                        </h2>
+                        <p class="card-text">
+                            @_featured.Introduction
+                        </p>
+                        <div>
+                            <small class="d-block">@_featured.User.Name</small>
+                            <small class="text-muted">@_featured.PublishedAt.ToDisplay()</small>
+                        </div>
+                    </div>
+                </div>
+            <!-- Display section for latest blogs -->
+            <h5 class="font-weight-bold spanborder"><span>Latest Blogs</span></h5>
+            <BlogPostList Posts="_latest" />
+            </div>
+        }
+        else
+        {
+            <!-- Display section for featured posts -->
+            <h5 class="font-weight-bold spanborder"><span>@_category?.Name Posts</span></h5>
+            <div class="card border-0 m-5 box-shadow">
+                <p class="p-5 text-center font-weight-bold" style="font-size: 25px; color:red; text-decoration:underline">Currently, there is no Blog Posts for @_category?.Name Category.</p>
+            </div>
+        }
+        <!-- Sidebar section -->
+        @if (HasPosts) 
+        {
+        <div class="col-md-4 pl-4">
+            <div class="sticky-top">
+                <!-- Display section for popular posts -->
+                <h5 class="font-weight-bold spanborder"><span>Popular in @_category?.Name</span></h5>
+                <PopularBlogPosts Posts="_popular" />
+            </div>
+        </div>
+        }
+    </div>
 </div>
 
+<!-- Subscribe section -->
 <div class="container pt-4 pb-4">
-	<SubscribeHeroSection />
+    <SubscribeHeroSection />
 </div>
 
 @code {
+    // Define parameter for category slug
+    [Parameter]
+    public string categorySlug { get; set; }
 
+    // Define variables
+    private Category _category;
+    private Post? _featured;
+    private Post[] _popular = [];
+    private Post[] _latest = [];
+
+    // If featured is null, which means there is no blogs in this category
+    private bool HasPosts => _featured is not null; 
+
+    // Method invoked when the component is initialised
+    protected override async Task OnInitializedAsync()
+    {
+        // Fetch category by slug from the backend
+        var category = await CategoryService.GetCategoryBySlugAsync(categorySlug);
+        // If category is null, redirect to home page
+        if (category is null)
+        {
+            NavigationManager.NavigateTo("/", replace: true);
+            return;
+        }
+        // Assign fetched category to _category variable
+        _category = category;
+
+        // Fetch featured, popular, and latest posts for the category asynchronously
+        var posts = await Task.WhenAll(
+            PostService.GetFeaturedPostsAsync(1, _category.Id),
+            PostService.GetPopularPostsAsync(4, _category.Id),
+            PostService.GetLatestPostsAsync(5, _category.Id)
+        );
+
+        // Assign fetched posts to corresponding variables
+        _featured = posts[0].FirstOrDefault();
+        _popular = posts[1];
+        _latest = posts[2];
+    }
 }

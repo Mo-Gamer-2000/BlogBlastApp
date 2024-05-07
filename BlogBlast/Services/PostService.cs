@@ -86,7 +86,7 @@ namespace BlogBlast.Services
                                    .AsNoTracking()
                                    .Include(p => p.Category) // Include related category information
                                    .Include(b => b.User)     // Include related user information
-                                   .Where(b => b.IsPublished && b.IsFeatured); // Filter by published and featured status
+                                   .Where(b => b.IsPublished); // Filter by published status
 
                 // If a categoryId is specified, filter the query by that category
                 if (categoryId > 0)
@@ -95,9 +95,26 @@ namespace BlogBlast.Services
                 }
 
                 // Order the results randomly and take the specified number of posts
-                return await query.OrderBy(_ => Guid.NewGuid())
-                                  .Take(count)
-                                  .ToArrayAsync();
+                var records = await query
+                                    .Where(b => b.IsFeatured)
+                                    .OrderBy(_ => Guid.NewGuid())
+                                    .Take(count)
+                                    .ToArrayAsync();
+
+                // Check if there are not enough featured posts, then include additional non-featured posts
+                if (count < records.Length)
+                {
+                    var additionalRecords = await query
+                                    .Where(b => !b.IsFeatured)
+                                    .OrderBy(_ => Guid.NewGuid())
+                                    .Take(count - records.Length)
+                                    .ToArrayAsync();
+
+                    // Concatenate the additional records with the existing featured records
+                    records = records.Concat(additionalRecords).ToArray();
+                }
+
+                return records;
             });
         }
 

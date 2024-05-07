@@ -1,49 +1,33 @@
-﻿<div class="mb-3 d-flex justify-content-between">
-	<div class="pr-3">
-		<h2 class="mb-1 h4 font-weight-bold">
-			<a class="text-dark" href="details">Nearly 200 Great Barrier Reef coral species also live in the deep sea</a>
-		</h2>
-		<p>
-			There are more coral species lurking in the deep ocean that previously thought.
-		</p>
-		<div class="card-text text-muted small">
-			Jake Bittle in SCIENCE
-		</div>
-		<small class="text-muted">Dec 12 &middot; 5 min read</small>
-	</div>
-	<img height="120" src="./assets/img/demo/blog8.jpg">
-</div>
-<div class="mb-3 d-flex justify-content-between">
-	<div class="pr-3">
-		<h2 class="mb-1 h4 font-weight-bold">
-			<a class="text-dark" href="details">East Antarctica's glaciers are stirring</a>
-		</h2>
-		<p>
-			Nasa says it has detected the first signs of significant melting in a swathe of glaciers in East Antarctica.
-		</p>
-		<div class="card-text text-muted small">
-			Jake Bittle in SCIENCE
-		</div>
-		<small class="text-muted">Dec 12 &middot; 5 min read</small>
-	</div>
-	<img height="120" src="./assets/img/demo/1.jpg">
-</div>
-<div class="mb-3 d-flex justify-content-between">
-	<div class="pr-3">
-		<h2 class="mb-1 h4 font-weight-bold">
-			<a class="text-dark" href="details">50 years ago, armadillos hinted that DNA wasn’t destiny</a>
-		</h2>
-		<p>
-			Nasa says it has detected the first signs of significant melting in a swathe of glaciers in East Antarctica.
-		</p>
-		<div class="card-text text-muted small">
-			Jake Bittle in SCIENCE
-		</div>
-		<small class="text-muted">Dec 12 &middot; 5 min read</small>
-	</div>
-	<img height="120" src="./assets/img/demo/5.jpg">
-</div>
+﻿@using BlogBlast.Data.Entities
+
+<!-- Iterate through each post in the Posts array -->
+@foreach (var post in Posts)
+{
+    <!-- Display each post with its details -->
+    <div class="mb-3 d-flex justify-content-between">
+        <div class="pr-3">
+            <!-- Display the title of the post with a link to details page -->
+            <h2 class="mb-1 h4 font-weight-bold">
+                <a class="text-dark" href="posts/@post.Slug">@post.Title</a>
+            </h2>
+            <!-- Display the introduction of the post -->
+            <p>
+                @post.Introduction
+            </p>
+            <!-- Display the author's name and category of the post with links -->
+            <div class="card-text text-muted small">
+                @post.User.Name in <a href="@post.Category.Slug-posts" title="@post.Category.Name Posts">@post.Category.Name</a>
+            </div>
+            <!-- Display the published date of the post -->
+            <small class="text-muted">@post.PublishedAt.ToDisplay()</small>
+        </div>
+        <!-- Display the image associated with the post -->
+        <img height="120" src="@post.Image">
+    </div>
+}
 
 @code {
-
+    // Define a parameter to receive the array of posts to be displayed
+    [Parameter]
+    public Post[] Posts { get; set; } = [];
 }
