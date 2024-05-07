@@ -1,5 +1,6 @@
 ﻿@page "/posts/{postSlug}"
 @using BlogBlast.Data.Entities
+@using System.Web
 
 @inject NavigationManager NavigationManager
 @inject IPostService PostService
@@ -25,7 +26,7 @@
                         </p>
                         <!-- Post author and date -->
                         <div class="d-flex align-items-center">
-                            <img class="rounded-circle" src="@_post.Image" width="70">
+                            <img class="rounded-circle" src="https://ui-avatars.com/api/?name=@(HttpUtility.UrlEncode(_post.User.Name))&background=random" width="70">
                             <small class="ml-2">
                                 @_post.User.Name <span class="text-muted d-block">@_post.PublishedAt.ToDisplay()</span>
                             </small>
