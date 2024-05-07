@@ -61,8 +61,8 @@
     // Define a variable to store the first post
     private Post _First = default!;
 
-    // Method invoked when the component is initialized
-    protected override void OnInitialized()
+    // Method invoked when the component parameters are set
+    protected override void OnParametersSet()
     {
         // Check if there are any posts
         if (Posts.Length > 0)
@@ -70,3 +70,4 @@
             _First = Posts.First();
     }
 }
+
