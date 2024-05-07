@@ -8,11 +8,11 @@
 
 <div class="container mt-5 mb-5">
     <div class="row">
-        @if(HasPosts) 
-        {
         <div class="col-md-8">
-            <!-- Display section for featured posts -->
-            <h5 class="font-weight-bold spanborder"><span>Featured in @_category?.Name</span></h5>
+            @if (HasPosts)
+            {
+                <!-- Display section for featured posts -->
+                <h5 class="font-weight-bold spanborder"><span>Featured in @_category?.Name</span></h5>
                 <div class="card border-0 mb-5 box-shadow">
                     <div style="background-image: url(@_featured.Image); height: 350px; background-size: cover; background-repeat: no-repeat;">
                     </div>
@@ -29,29 +29,34 @@
                         </div>
                     </div>
                 </div>
-            <!-- Display section for latest blogs -->
-            <h5 class="font-weight-bold spanborder"><span>Latest Blogs</span></h5>
-            <BlogPostList Posts="_latest" />
-            </div>
-        }
-        else
-        {
-            <!-- Display section for featured posts -->
-            <h5 class="font-weight-bold spanborder"><span>@_category?.Name Posts</span></h5>
-            <div class="card border-0 m-5 box-shadow">
-                <p class="p-5 text-center font-weight-bold" style="font-size: 25px; color:red; text-decoration:underline">Currently, there is no Blog Posts for @_category?.Name Category.</p>
-            </div>
-        }
-        <!-- Sidebar section -->
-        @if (HasPosts) 
-        {
-        <div class="col-md-4 pl-4">
-            <div class="sticky-top">
-                <!-- Display section for popular posts -->
-                <h5 class="font-weight-bold spanborder"><span>Popular in @_category?.Name</span></h5>
-                <PopularBlogPosts Posts="_popular" />
-            </div>
+                <!-- Display section for latest blogs -->
+                <h5 class="font-weight-bold spanborder"><span>Latest Blogs</span></h5>
+                <BlogPostList Posts="_latest" />
+                <hr />
+                <div class="text-center">
+                    <p class="font-weight-bold">Click for more ➡️ <a href="@categorySlug-posts/all" class="btn btn-sm btn-outline-primary">All @_category?.Name Posts</a></p>
+                </div>
+                <hr />
+            }
+            else
+            {
+                <!-- Display section for featured posts -->
+                <h5 class="font-weight-bold spanborder"><span>@_category?.Name Posts</span></h5>
+                <div class="card border-0 m-5 box-shadow">
+                    <p class="p-5 text-center font-weight-bold" style="font-size: 25px; color:red; text-decoration:underline">Currently, there is no Blog Posts for @_category?.Name Category.</p>
+                </div>
+            }
         </div>
+        <!-- Sidebar section -->
+        @if (HasPosts)
+        {
+            <div class="col-md-4 pl-4">
+                <div class="sticky-top">
+                    <!-- Display section for popular posts -->
+                    <h5 class="font-weight-bold spanborder"><span>Popular in @_category?.Name</span></h5>
+                    <PopularBlogPosts Posts="_popular" />
+                </div>
+            </div>
         }
     </div>
 </div>
@@ -67,15 +72,17 @@
     public string categorySlug { get; set; }
 
     // Define variables
-    private Category _category;
-    private Post? _featured;
-    private Post[] _popular = [];
-    private Post[] _latest = [];
+    private Category _category; // Stores the fetched category information.
+    private Post? _featured; // Stores the featured post.
+    private Post[] _popular = []; // Array to store popular posts in the current category.
+    private Post[] _latest = []; // Array to store latest posts in the current category.
 
-    // If featured is null, which means there is no blogs in this category
-    private bool HasPosts => _featured is not null; 
+    // Checks if there are any posts in the category.
+    private bool HasPosts => _featured is not null;
 
-    // Method invoked when the component is initialised
+    /// <summary>
+    /// Executes when the component is initialized.
+    /// </summary>
     protected override async Task OnInitializedAsync()
     {
         // Fetch category by slug from the backend

@@ -5,29 +5,54 @@
 @inject IPostService PostService
 @inject ICategoryService CategoryService
 
-<h3>AllCategoryPosts</h3>
+<div class="container mt-5 mb-5">
+    <div class="row">
+        <div class="col-md-8">
+            <!-- Display section for featured posts -->
+            <h5 class="font-weight-bold spanborder"><span>@_category?.Name Posts</span></h5>
+            <BlogPostList Posts="_posts" />
+        </div>
+        <!-- Sidebar section -->
+        <div class="col-md-4 pl-4">
+            <div class="sticky-top">
+                <!-- Display section for popular posts -->
+                <h5 class="font-weight-bold spanborder"><span>Popular in @_category?.Name</span></h5>
+                <PopularBlogPosts Posts="_popularPosts" />
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Subscribe section -->
+<div class="container pt-4 pb-4">
+    <SubscribeHeroSection />
+</div>
 
 @code {
+    // Define parameter for category slug
     [Parameter]
     public string CategorySlug { get; set; }
+    // Define parameter for page number in URI
     [Parameter]
     public int UriPageNumber { get; set; }
     // Stores the fetched category information.
-    private Category _category; 
+    private Category _category;
     // Array to store all posts in the current category.
-    private Post[] _posts = []; 
+    private Post[] _posts = [];
     // Array to store popular posts in the current category.
-    private Post[] _popularPosts = []; 
+    private Post[] _popularPosts = [];
+    // Defines the current page index.
+    private int _pageIndex = 1;
     // Defines the number of posts per page.
-    private const int PageSize = 5; 
+    private const int PageSize = 5;
 
     /// <summary>
-    /// Executes when the component is initialised.
+    /// Executes when the component is initialized.
     /// </summary>
     protected override async Task OnInitializedAsync()
     {
         // Fetch category by slug from the backend
-        var category = await CategoryService.GetCategoryBySlugAsync(categorySlug);
+        var category = await CategoryService.GetCategoryBySlugAsync(CategorySlug);
         // If category is null, redirect to home page
         if (category is null)
         {
@@ -40,11 +65,11 @@
         // Fetch popular and featured posts for the category asynchronously
         var posts = await Task.WhenAll(
             PostService.GetPopularPostsAsync(5, _category.Id),
-            PostService.GetFeaturedPostsAsync(1, _category.Id)
+            PostService.GetAllPostsAsync(_pageIndex, PageSize, _category.Id)
         );
 
         // Assign fetched posts to corresponding variables
         _popularPosts = posts[0];
-        _posts = posts[1];
+        _posts = posts[0];
     }
 }
