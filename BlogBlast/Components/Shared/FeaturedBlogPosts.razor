@@ -1,63 +1,72 @@
-﻿<div class="row">
-	<div class="col-lg-6">
-		<div class="card border-0 mb-4 box-shadow h-xl-300">
-			<div style="background-image: url(./assets/img/demo/1.jpg); height: 150px;    background-size: cover;    background-repeat: no-repeat;"></div>
-			<div class="card-body px-0 pb-0 d-flex flex-column align-items-start">
-				<h2 class="h4 font-weight-bold">
-					<a class="text-dark" href="details">Brain Stimulation Relieves Depression Symptoms</a>
-				</h2>
-				<p class="card-text">
-					Researchers have found an effective target in the brain for electrical stimulation to improve mood in people suffering from depression.
-				</p>
-				<div>
-					<small class="d-block"><a class="text-muted" href="./author.html">Favid Rick</a></small>
-					<small class="text-muted">Dec 12 &middot; 5 min read</small>
-				</div>
-			</div>
-		</div>
-	</div>
-	<div class="col-lg-6">
-		<div class="flex-md-row mb-4 box-shadow h-xl-300">
-			<div class="mb-3 d-flex align-items-center">
-				<img height="80" src="./assets/img/demo/blog4.jpg">
-				<div class="pl-3">
-					<h2 class="mb-2 h6 font-weight-bold">
-						<a class="text-dark" href="details">Nasa's IceSat space laser makes height maps of Earth</a>
-					</h2>
-					<div class="card-text text-muted small">
-						Jake Bittle in LOVE/HATE
-					</div>
-					<small class="text-muted">Dec 12 &middot; 5 min read</small>
-				</div>
-			</div>
-			<div class="mb-3 d-flex align-items-center">
-				<img height="80" src="./assets/img/demo/blog5.jpg">
-				<div class="pl-3">
-					<h2 class="mb-2 h6 font-weight-bold">
-						<a class="text-dark" href="details">Underwater museum brings hope to Lake Titicaca</a>
-					</h2>
-					<div class="card-text text-muted small">
-						Jake Bittle in LOVE/HATE
-					</div>
-					<small class="text-muted">Dec 12 &middot; 5 min read</small>
-				</div>
-			</div>
-			<div class="mb-3 d-flex align-items-center">
-				<img height="80" src="./assets/img/demo/blog6.jpg">
-				<div class="pl-3">
-					<h2 class="mb-2 h6 font-weight-bold">
-						<a class="text-dark" href="details">Sun-skimming probe starts calling home</a>
-					</h2>
-					<div class="card-text text-muted small">
-						Jake Bittle in LOVE/HATE
-					</div>
-					<small class="text-muted">Dec 12 &middot; 5 min read</small>
-				</div>
-			</div>
-		</div>
-	</div>
-</div>
+﻿@using BlogBlast.Data.Entities
+
+<!-- Check if there are any posts to display -->
+@if (Posts.Length > 0)
+{
+    <div class="row">
+        <!-- Render the first featured post -->
+        <div class="col-lg-6">
+            <div class="card border-0 mb-4 box-shadow h-xl-300">
+                <!-- Display the image of the first featured post -->
+                <div style="background-image: url(@_First.Image); height: 150px; background-size: cover; background-repeat: no-repeat;"></div>
+                <div class="card-body px-0 pb-0 d-flex flex-column align-items-start">
+                    <!-- Display the title of the first featured post -->
+                    <h2 class="h4 font-weight-bold">
+                        <a class="text-dark" href="details">@_First.Title</a>
+                    </h2>
+                    <!-- Display the introduction of the first featured post -->
+                    <p class="card-text">
+                        @_First.Introduction
+                    </p>
+                    <div>
+                        <!-- Display the author's name and publication date of the first featured post -->
+                        <small class="d-block">@_First.User.Name</small>
+                        <small class="text-muted">@_First.PublishedAt.ToDisplay()</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Render the remaining featured posts -->
+        <div class="col-lg-6">
+            <div class="flex-md-row mb-4 box-shadow h-xl-300">
+                @foreach (var post in Posts.Skip(1))
+                {
+                    <div class="mb-3 d-flex align-items-center">
+                        <!-- Display the image of the current featured post -->
+                        <img height="80" src="@post.Image">
+                        <div class="pl-3">
+                            <!-- Display the title of the current featured post -->
+                            <h2 class="mb-2 h6 font-weight-bold">
+                                <a class="text-dark" href="details">@post.Title</a>
+                            </h2>
+                            <div class="card-text text-muted small">
+                                <!-- Display the author's name and category of the current featured post -->
+                                @post.User.Name in <a href="/category">@post.Category.Name</a>
+                            </div>
+                            <!-- Display the publication date of the current featured post -->
+                            <small class="text-muted">@post.PublishedAt.ToDisplay()</small>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+}
 
 @code {
+    // Define a parameter to receive the array of posts to be displayed
+    [Parameter]
+    public Post[] Posts { get; set; } = [];
 
+    // Define a variable to store the first post
+    private Post _First = default!;
+
+    // Method invoked when the component is initialized
+    protected override void OnInitialized()
+    {
+        // Check if there are any posts
+        if (Posts.Length > 0)
+            // Assign the first post to the _First variable
+            _First = Posts.First();
+    }
 }

@@ -1,46 +1,26 @@
-﻿<ol class="list-featured">
-	<li>
-		<span>
-			<h6 class="font-weight-bold">
-				<a href="details" class="text-dark">Did Supernovae Kill Off Large Ocean Animals?</a>
-			</h6>
-			<p class="text-muted">
-				Jake Bittle in SCIENCE
-			</p>
-		</span>
-	</li>
-	<li>
-		<span>
-			<h6 class="font-weight-bold">
-				<a href="details" class="text-dark">Humans Reversing Climate Clock: 50 Million Years</a>
-			</h6>
-			<p class="text-muted">
-				Jake Bittle in SCIENCE
-			</p>
-		</span>
-	</li>
-	<li>
-		<span>
-			<h6 class="font-weight-bold">
-				<a href="details" class="text-dark">Unprecedented Views of the Birth of Planets</a>
-			</h6>
-			<p class="text-muted">
-				Jake Bittle in SCIENCE
-			</p>
-		</span>
-	</li>
-	<li>
-		<span>
-			<h6 class="font-weight-bold">
-				<a href="details" class="text-dark">Effective New Target for Mood-Boosting Brain Stimulation Found</a>
-			</h6>
-			<p class="text-muted">
-				Jake Bittle in SCIENCE
-			</p>
-		</span>
-	</li>
+﻿@using BlogBlast.Data.Entities
+
+<!-- Check if there are any posts to display -->
+<ol class="list-featured">
+    @foreach (var post in Posts)
+    {
+        <li>
+            <span>
+                <!-- Display the title of the current post -->
+                <h6 class="font-weight-bold">
+                    <a href="details" class="text-dark">@post.Title</a>
+                </h6>
+                <!-- Display the author's name and category of the current post -->
+                <p class="text-muted">
+                    @post.User.Name in <a href="/category">@post.Category.Name</a>
+                </p>
+            </span>
+        </li>
+    }
 </ol>
 
 @code {
-
+    // Define a parameter to receive the array of posts to be displayed
+    [Parameter]
+    public Post[] Posts { get; set; } = [];
 }
