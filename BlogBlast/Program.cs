@@ -48,7 +48,9 @@ builder.Services
     // Registering PostAdminService for managing blog posts
     .AddTransient<IPostAdminService, PostAdminService>()
     // Registering PostService for displaying blog posts
-    .AddTransient<IPostService, PostService>();
+    .AddTransient<IPostService, PostService>()
+	// Registering SubscriptionService for blog subscription
+	.AddTransient<ISubscriptionService, SubscriptionService>();
 
 var app = builder.Build();
 
