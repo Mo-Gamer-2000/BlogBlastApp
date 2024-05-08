@@ -1,48 +1,64 @@
-﻿@page "/Account/Login"
+﻿@*
+     * This Razor component represents the login page of the BlogBlast application.
+     * It allows users to log in using their email and password.
+     * The component includes form validation and error handling.
+ *@
 
+@page "/Account/Login"
+
+@* Importing necessary namespaces *@
 @using System.ComponentModel.DataAnnotations
 @using Microsoft.AspNetCore.Authentication
 @using Microsoft.AspNetCore.Identity
 @using BlogBlast.Data
 @using System.Security.Claims
 
-@inject SignInManager<ApplicationUser> SignInManager
+@* Injecting required services *@
+@inject SignInManager<ApplicationUser> SignInManager 
 @inject ILogger<Login> Logger
 @inject NavigationManager NavigationManager
 @inject IdentityRedirectManager RedirectManager
-@inject UserManager<ApplicationUser> UserManager /* IMPORTED USER MANAGER */
+@inject UserManager<ApplicationUser> UserManager
 
 <PageTitle>@Utility.GetPageTitle("Login")</PageTitle>
+
+<!-- Header section -->
 <div class="container-fluid">
     <div class="text-center p-0 m-0">
         <h1 class="logo-text">Blog<span class="blast-text">Blast</span></h1>
     </div>
 </div>
 
+<!-- Login form section -->
 <div class="container d-flex justify-content-center align-items-center" style="min-height: calc(100vh - 250px)">
     <div class="col-md-6 col-lg-4 shadow p-4 rounded">
-        <h2 class="text-center mb-4">Log in to BlogBlast</h2>
-        <StatusMessage Message="@errorMessage" />
+        <h2 class="text-center mb-4">Log in to BlogBlast</h2> 
+        <StatusMessage Message="@errorMessage" /> <!-- Displays error messages, if any -->
         <EditForm Model="Input" method="post" OnValidSubmit="PerformLoginAsync" FormName="login">
-            <DataAnnotationsValidator />
+            <!-- Initializes login form -->
+            <DataAnnotationsValidator /> <!-- Validates form fields based on data annotations -->
             <hr />
-            <ValidationSummary class="text-danger" />
+            <ValidationSummary class="text-danger" /> <!-- Displays validation summary -->
+            <!-- Email input field -->
             <div class="mb-3">
                 <label for="email" class="form-label">Email</label>
-                <InputText @bind-Value="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="Enter your email" />
-                <ValidationMessage For="() => Input.Email" class="text-danger" />
+                <InputText @bind-Value="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="Enter your email" /> <!-- Allows users to input email -->
+                <ValidationMessage For="() => Input.Email" class="text-danger" /> <!-- Displays validation message for email -->
             </div>
+            <!-- Password input field -->
             <div class="mb-3">
                 <label for="password" class="form-label">Password</label>
-                <InputText type="password" @bind-Value="Input.Password" class="form-control" autocomplete="current-password" aria-required="true" placeholder="Enter your password" />
-                <ValidationMessage For="() => Input.Password" class="text-danger" />
+                <InputText type="password" @bind-Value="Input.Password" class="form-control" autocomplete="current-password" aria-required="true" placeholder="Enter your password" />  <!-- Allows users to input password -->
+                <ValidationMessage For="() => Input.Password" class="text-danger" /> <!-- Displays validation message for password -->
             </div>
+            <!-- Remember me checkbox -->
             <div class="mb-3 form-check">
                 <InputCheckbox @bind-Value="Input.RememberMe" class="form-check-input" />
                 <label class="form-check-label">Remember me</label>
             </div>
+            <!-- Submit button -->
             <div class="text-center">
-                <button type="submit" class="btn btn-primary btn-block">Log in</button>
+                <button type="submit" class="btn btn-primary btn-block">Log in</button> <!-- Submits login form -->
             </div>
         </EditForm>
     </div>
@@ -50,77 +66,76 @@
 
 <style>
     .logo-text {
-        font-family: 'Arial', sans-serif; /* Use your preferred font family */
-        font-size: 36px; /* Adjust the font size as needed */
-        font-weight: bold; /* Ensure the text is bold for prominence */
-        color: #333; /* Adjust the color as per your design */
+        font-family: 'Arial', sans-serif; 
+        font-size: 36px; 
+        font-weight: bold; 
+        color: #000; 
     }
 
     .blast-text {
-        color: #ff6600; /* Change the color for the "Blast" part */
+        color: #ff6600;
     }
 
 </style>
 
-
 @code {
-    private string? errorMessage;
+    private string? errorMessage; // Stores error message if any
 
     [CascadingParameter]
-    private HttpContext HttpContext { get; set; } = default!;
+    private HttpContext HttpContext { get; set; } = default!; // Gets the HTTP context
 
     [SupplyParameterFromForm]
-    private InputModel Input { get; set; } = new();
+    private InputModel Input { get; set; } = new(); // Initialises InputModel for form data
 
     [SupplyParameterFromQuery]
-    private string? ReturnUrl { get; set; } = "/admin/dashboard";
+    private string? ReturnUrl { get; set; } = "/admin/dashboard"; // Sets the default return URL
 
+    // Performs necessary actions on component initialisation
     protected override async Task OnInitializedAsync()
     {
         if (HttpMethods.IsGet(HttpContext.Request.Method))
         {
             // Clear the existing external cookie to ensure a clean login process
-            await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
+            await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme); // Clears external cookie
         }
     }
 
-    // Created method to check if the user exists
+    // Performs login operation
     private async Task PerformLoginAsync()
     {
-        var user = await UserManager.FindByEmailAsync(Input.Email); // Get the user by Email
-        if(user is null)
+        var user = await UserManager.FindByEmailAsync(Input.Email); // Finds user by email
+        if (user is null) // Checks if user does not exist
         {
-            errorMessage = "Error: Invalid login attempt.";
+            errorMessage = "Error: Invalid login attempt."; // Sets error message
             return;
         }
 
-        // If user excists
-        var result = await SignInManager.CheckPasswordSignInAsync(user, Input.Password, false); // Check the password
-                                                                                                // Check if the password was inccorrect
-        if(!result.Succeeded) 
+        var result = await SignInManager.CheckPasswordSignInAsync(user, Input.Password, false); // Checks user's password
+        if (!result.Succeeded) // Checks if password is incorrect
         {
-            errorMessage = "Error: Wrong password.";
+            errorMessage = "Error: Wrong password."; // Sets error message
         }
-        // If now the user excists and password is correct then do this
-        // Used Claim Array to check Additional Claim
-        Claim[] additionalClaim = [new Claim(AppConstants.ClaimNames.FullName, user.Name)]; // Getting the user Name from App Constants
-        await SignInManager.SignInWithClaimsAsync(user, Input.RememberMe, additionalClaim);
 
-        Logger.LogInformation("User logged in.");
-        RedirectManager.RedirectTo(ReturnUrl);
+        // If user exists and password is correct, signs in with additional claims
+        Claim[] additionalClaims = new Claim[] { new Claim(AppConstants.ClaimNames.FullName, user.Name) }; // Defines additional claims
+        await SignInManager.SignInWithClaimsAsync(user, Input.RememberMe, additionalClaims); // Signs in user with additional claims
+
+        Logger.LogInformation("User logged in."); // Logs user login
+        RedirectManager.RedirectTo(ReturnUrl); // Redirects user after login
     }
 
+    // Defines input model for login form
     private sealed class InputModel
     {
         [Required]
         [EmailAddress]
-        public string Email { get; set; } = "";
+        public string Email { get; set; } = ""; // Defines email property with validation
 
         [Required]
         [DataType(DataType.Password)]
-        public string Password { get; set; } = "";
+        public string Password { get; set; } = ""; // Defines password property with validation
 
         [Display(Name = "Remember me?")]
-        public bool RememberMe { get; set; }
+        public bool RememberMe { get; set; } // Defines remember me property
     }
 }

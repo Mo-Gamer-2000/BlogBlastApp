@@ -1,20 +1,35 @@
-﻿@inherits LayoutComponentBase
-@layout BlogBlast.Components.Layout.MainLayout
-@inject NavigationManager NavigationManager
+﻿@* 
+    * This Razor component defines the layout for the account-related pages in the BlogBlast application.
+    * It inherits from LayoutComponentBase and sets the main layout for the account-related pages.
+    * It also includes logic to handle rendering in interactive mode.
+*@
+
+@* Inherits from LayoutComponentBase *@
+@inherits LayoutComponentBase 
+
+@* Sets the layout for account-related pages *@
+@layout BlogBlast.Components.Layout.MainLayout 
+
+@* Injects NavigationManager for navigation purposes *@
+@inject NavigationManager NavigationManager 
 
 @if (HttpContext is null)
 {
+    @* Displays loading message if HttpContext is null *@
     <p>Loading...</p>
 }
 else
 {
-    @Body
+    @* Renders the body of the layout *@
+    @Body 
+    
 }
 
 @code {
     [CascadingParameter]
-    private HttpContext? HttpContext { get; set; }
+    private HttpContext? HttpContext { get; set; } // Gets the HttpContext
 
+    // Overrides OnParametersSet method to handle rendering in interactive mode
     protected override void OnParametersSet()
     {
         if (HttpContext is null)
@@ -22,7 +37,7 @@ else
             // If this code runs, we're currently rendering in interactive mode, so there is no HttpContext.
             // The identity pages need to set cookies, so they require an HttpContext. To achieve this we
             // must transition back from interactive mode to a server-rendered page.
-            NavigationManager.Refresh(forceReload: true);
+            NavigationManager.Refresh(forceReload: true); // Forces page reload to get HttpContext
         }
     }
 }

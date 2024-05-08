@@ -1,29 +1,40 @@
-﻿@if (!string.IsNullOrEmpty(DisplayMessage))
+﻿@* 
+     * This Razor component displays status messages based on the provided message or the message retrieved from a cookie.
+     * It determines the message type (error or success) based on the message content.
+*@
+
+@if (!string.IsNullOrEmpty(DisplayMessage))
 {
-    var statusMessageClass = DisplayMessage.StartsWith("Error") ? "danger" : "success";
+    @* Determines the message type based on content *@
+    var statusMessageClass = DisplayMessage.StartsWith("Error") ? "danger" : "success"; 
     <div class="alert alert-@statusMessageClass" role="alert">
-        @DisplayMessage
+        @* 
+            Displays the status message with appropriate styling
+            Displays the message content
+        *@
+        @DisplayMessage 
     </div>
 }
 
 @code {
-    private string? messageFromCookie;
+    private string? messageFromCookie; // Stores message retrieved from cookie
 
     [Parameter]
-    public string? Message { get; set; }
+    public string? Message { get; set; } // Gets the message parameter
 
     [CascadingParameter]
-    private HttpContext HttpContext { get; set; } = default!;
+    private HttpContext HttpContext { get; set; } = default!; // Gets the HttpContext
 
-    private string? DisplayMessage => Message ?? messageFromCookie;
+    private string? DisplayMessage => Message ?? messageFromCookie; // Determines the message to display
 
+    // Handles component initialization
     protected override void OnInitialized()
     {
-        messageFromCookie = HttpContext.Request.Cookies[IdentityRedirectManager.StatusCookieName];
+        messageFromCookie = HttpContext.Request.Cookies[IdentityRedirectManager.StatusCookieName]; // Retrieves message from cookie
 
         if (messageFromCookie is not null)
         {
-            HttpContext.Response.Cookies.Delete(IdentityRedirectManager.StatusCookieName);
+            HttpContext.Response.Cookies.Delete(IdentityRedirectManager.StatusCookieName); // Deletes the cookie after retrieving the message
         }
     }
 }
