@@ -1,0 +1,47 @@
+﻿@page "/admin/manage-subscriptions"
+@using BlogBlast.Data.Entities
+@using Microsoft.AspNetCore.Components.QuickGrid
+
+@rendermode @(new InteractiveServerRenderMode(prerender: false))
+
+@inject ISubscriptionService SubscriptionService
+
+<AdminHeader Title="Manage Subscriptions" />
+
+@if(_isLoading)
+{
+    <LoadingState LoadingText="Retriving Subscriptions" />
+}
+
+<QuickGrid ItemsProvider="_subscriptionsProvider" Pagination="_paginationState" Class="table table-bordered table-striped">
+    <PropertyColumn Property="c => c.Name" />
+    <PropertyColumn Property="c => c.Email" />
+    <PropertyColumn Property="c => c.SubscribedOn" Format="MMM-dd-yyyy hh:mm:ss" Title="Subscribed On" />
+</QuickGrid>
+<Paginator State="_paginationState" />
+
+@code {
+    private bool _isLoading;
+    private GridItemsProvider<Subscription>? _subscriptionsProvider;
+
+    private const int PageSize = 10;
+    private PaginationState _paginationState = new()
+    {
+        ItemsPerPage = PageSize
+    };
+
+    protected override void OnInitialized()
+    {
+        _subscriptionsProvider = async request =>
+        {
+            _isLoading = true;
+            StateHasChanged();
+
+            var result = await SubscriptionService.GetSubscriptionsAsync(request.StartIndex, request.Count ?? PageSize);
+
+            _isLoading = false;
+            StateHasChanged();
+            return GridItemsProviderResult.From(result.Records, result.TotalCount);
+        };
+    }
+}
