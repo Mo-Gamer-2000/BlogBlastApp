@@ -40,7 +40,7 @@
                 @if (context.IsPublished)
                 {
                     <!-- If published, display a link to the post -->
-                    <a href="/details" target="_blank">@context.Slug</a>
+                    <a href="posts/@context.Slug" target="_blank">@context.Slug</a>
                 }
                 else
                 {
