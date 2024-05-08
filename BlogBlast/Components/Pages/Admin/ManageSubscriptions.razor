@@ -1,0 +1,20 @@
+﻿@page "/admin/manage-subscriptions"
+@using BlogBlast.Data.Entities
+@using Microsoft.AspNetCore.Components.QuickGrid
+
+<h3>ManageSubscriptions</h3>
+
+@code {
+    private GridItemsProvider<Subscription> _subscriptionsProvider;
+
+    private const int PageSize = 5;
+    private PaginationState _paginationState = new()
+    {
+        ItemsPerPage = PageSize
+    };
+
+    protected override Task OnInitializedAsync()
+    {
+        return base.OnInitializedAsync();
+    }
+}
