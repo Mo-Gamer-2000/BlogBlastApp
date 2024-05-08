@@ -52,12 +52,13 @@
 
 @code
 {
-    private Post[] _featured = [];
-    private Post[] _popular = [];
-    private Post[] _latest = [];
+    private Post[] _featured = []; // Array to store featured blog posts
+    private Post[] _popular = []; // Array to store popular blog posts
+    private Post[] _latest = []; // Array to store latest blog posts
 
-    private Post _FirstFeatured = default!;
+    private Post _FirstFeatured = default!; // Variable to store the first featured post
 
+    // Method invoked when the component is initialized
     protected override async Task OnInitializedAsync()
     {
         // Fetching featured, popular, and latest posts asynchronously

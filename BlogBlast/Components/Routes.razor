@@ -1,11 +1,17 @@
-﻿@using BlogBlast.Components.Account.Shared
+﻿@* Importing namespace for the shared account components *@
+@using BlogBlast.Components.Account.Shared
+
+<!-- Router component responsible for routing in the application -->
 <Router AppAssembly="typeof(Program).Assembly">
     <Found Context="routeData">
+        <!-- AuthorizeRouteView component ensures that only authorized users can access specific routes -->
         <AuthorizeRouteView RouteData="routeData" DefaultLayout="typeof(Layout.MainLayout)">
+            <!-- NotAuthorized section redirects to login page if user is not authorized -->
             <NotAuthorized>
                 <RedirectToLogin />
             </NotAuthorized>
         </AuthorizeRouteView>
+        <!-- FocusOnNavigate component focuses on the specified selector after navigating to a route -->
         <FocusOnNavigate RouteData="routeData" Selector="h1" />
     </Found>
 </Router>

@@ -14,12 +14,14 @@
 @* Render the admin header with a title and a button to add a new category *@
 <AdminHeader Title="Manage Categories">
     <ActionButtons>
+        <!-- Button to add a new category -->
         <button type="button" class="btn btn-primary btn-sm" @onclick="() => _operatingCategory = new()">Add Category</button>
     </ActionButtons>
 </AdminHeader>
 
 @if (_isLoading)
 {
+    <!-- Loading state indicator -->
     <LoadingState LoadingText="@_loadingText" />
 }
 
@@ -29,23 +31,26 @@
     <div class="row">
         <div class="col-sm-6"></div>
         <div class="col-sm-6">
-            @* Edit form for the category, with input fields for name and visibility on navbar *@
+            <!-- Edit form for the category -->
             <EditForm Model="_operatingCategory" OnValidSubmit="SaveCategoryAsync">
-                @* Adding Category does not work, it works if I change OnValidSubmit to OnInvalidSubmit - FIXED!*@
+                <!-- Form validation components -->
                 <DataAnnotationsValidator />
                 <ValidationSummary />
                 <div class="shadow p-3" style="display: grid; grid-template-columns: auto 150px; grid-column-gap: 15px">
                     <div>
                         <label class="form-label">Category Name</label>
+                        <!-- Input field for category name -->
                         <InputText @bind-Value="_operatingCategory.Name" class="form-control form-control-sm" placeholder="Category Name" />
+                        <!-- Validation message for category name -->
                         <ValidationMessage For="() =>_operatingCategory.Name" />
                         <label class="form-label mt-2">
+                            <!-- Checkbox for visibility on navbar -->
                             <InputCheckbox @bind-Value="_operatingCategory.VisibleOnNavbar" />
                             Visible on Navbar
                         </label>
                     </div>
                     <div class="d-flex flex-column">
-                        @* Buttons to save or cancel editing the category *@
+                        <!-- Buttons to save or cancel editing the category -->
                         <button type="submit" class="btn btn-sm btn-success mb-2">Save</button>
                         <button type="button" class="btn btn-sm btn-danger" @onclick="() => _operatingCategory = null">Cancel</button>
                     </div>
@@ -58,30 +63,31 @@
 @* Used the QuickGrid component to display categories in a grid format *@
 <QuickGrid Items="@_categories" Class="table table-bordered table-striped table-hover">
     @* Binded categories *@
-    @* Defined columns for the grid, mapping properties of the Category class *@
+    <!-- Defined columns for the grid, mapping properties of the Category class -->
     <PropertyColumn Property="@(c=> c.Id)" />
     <PropertyColumn Property="@(c=> c.Name)" />
     <PropertyColumn Property="@(c=> c.Slug)" />
-    @* Defined a custom column for the "Visible on Navbar" property *@
+    <!-- Defined a custom column for the "Visible on Navbar" property -->
     <TemplateColumn Title="Visible on Navbar">
-        @* Check if VisibleOnNavbar property is true or false for each category *@
+        <!-- Check if VisibleOnNavbar property is true or false for each category -->
         @if (context.VisibleOnNavbar)
         {
-                            // If True, then display a checkbox with "Yes" label
+            <!-- If True, then display a checkbox with "Yes" label -->
             <label class="text-success">
                 <input type="checkbox" @onchange="@(() => HandleVisibleOnNavbarChanged(context))" checked /> Yes
             </label>
         }
         else
         {
-                            // If False, then display a checkbox with "No" label
+            <!-- If False, then display a checkbox with "No" label -->
             <label class="text-danger">
                 <input type="checkbox" @onchange="@(() => HandleVisibleOnNavbarChanged(context))" /> No
             </label>
         }
     </TemplateColumn>
-    @* Defined a column for editing each category *@
+    <!-- Defined a column for editing each category -->
     <TemplateColumn>
+        <!-- Button to edit a category -->
         <button type="button" class="btn btn-sm btn-primary" @onclick="() => HandleEditCategory(context)">Edit</button>
     </TemplateColumn>
 </QuickGrid>

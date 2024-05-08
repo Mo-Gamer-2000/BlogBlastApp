@@ -94,9 +94,7 @@
     // Checks if there are any posts in the category
     private bool HasPosts => _featured is not null;
 
-    /// <summary>
-    /// Executes when the component is initialized.
-    /// </summary>
+    // Executes when the component is initialized.
     protected override async Task OnInitializedAsync()
     {
         // Fetch category by slug from the backend
