@@ -1,86 +1,89 @@
 ﻿using BlogBlast.Data;
 using BlogBlast.Data.Entities;
+using BlogBlast.Models;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Internal;
 
-namespace BlogBlast.Services
+namespace BlogBlast.Services;
+
+/// <summary>
+/// Interface for managing subscriptions.
+/// </summary>
+public interface ISubscriptionService
 {
     /// <summary>
-    /// Interface for managing subscriptions.
+    /// Subscribes a user to a service.
     /// </summary>
-    public interface ISubscriptionService
-    {
-        /// <summary>
-        /// Subscribes a user to a service.
-        /// </summary>
-        /// <param name="subscription">The subscription details.</param>
-        /// <returns>A string message indicating subscription status, or null if successful.</returns>
-        Task<string?> SubscriptionAsync(Subscription subscription);
+    /// <param name="subscription">The subscription details.</param>
+    /// <returns>A string message indicating subscription status, or null if successful.</returns>
+    Task<string?> SubscriptionAsync(Subscription subscription);
 
-        /// <summary>
-        /// Retrieves subscriptions based on the provided startIndex and pageSize.
-        /// </summary>
-        /// <param name="startIndex">The start index for retrieving subscriptions.</param>
-        /// <param name="pageSize">The number of subscriptions to retrieve.</param>
-        /// <returns>An array of Subscription objects.</returns>
-        Task<Subscription[]> GetSubscriptionsAsync(int startIndex, int pageSize);
+    /// <summary>
+    /// Retrieves subscriptions based on the provided startIndex and pageSize.
+    /// </summary>
+    /// <param name="startIndex">The start index for retrieving subscriptions.</param>
+    /// <param name="pageSize">The number of subscriptions to retrieve.</param>
+    /// <returns>A paged result of Subscription objects.</returns>
+    Task<PagedResult<Subscription>> GetSubscriptionsAsync(int startIndex, int pageSize);
+}
+
+/// <summary>
+/// Service for managing subscriptions.
+/// </summary>
+public class SubscriptionService : ISubscriptionService
+{
+    private readonly IDbContextFactory<ApplicationDbContext> _contextFactory;
+
+    /// <summary>
+    /// Constructor for SubscriptionService.
+    /// </summary>
+    /// <param name="contextFactory">The context factory for creating the database context.</param>
+    public SubscriptionService(IDbContextFactory<ApplicationDbContext> contextFactory)
+    {
+        _contextFactory = contextFactory;
     }
 
     /// <summary>
-    /// Service for managing subscriptions.
+    /// Subscribes a user to a service.
     /// </summary>
-    public class SubscriptionService : ISubscriptionService
+    /// <param name="subscription">The subscription details.</param>
+    /// <returns>A string message indicating subscription status, or null if successful.</returns>
+    public async Task<string?> SubscriptionAsync(Subscription subscription)
     {
-        private readonly IDbContextFactory<ApplicationDbContext> _contextFactory;
+        using var context = _contextFactory.CreateDbContext();
+        var isSubscribed = await context.Subscriptions
+                                        .AsNoTracking()
+                                        .AnyAsync(s => s.Email == subscription.Email);
 
-        /// <summary>
-        /// Constructor for SubscriptionService.
-        /// </summary>
-        /// <param name="contextFactory">The context factory for creating the database context.</param>
-        public SubscriptionService(IDbContextFactory<ApplicationDbContext> contextFactory)
+        if (isSubscribed)
         {
-            _contextFactory = contextFactory;
+            return "You are already subscribed!";
         }
 
-        /// <summary>
-        /// Subscribes a user to a service.
-        /// </summary>
-        /// <param name="subscription">The subscription details.</param>
-        /// <returns>A string message indicating subscription status, or null if successful.</returns>
-        public async Task<string?> SubscriptionAsync(Subscription subscription)
-        {
-            using var context = _contextFactory.CreateDbContext();
-            var isSubscribed = await context.Subscriptions
-                                            .AsNoTracking()
-                                            .AnyAsync(s => s.Email == subscription.Email);
+        subscription.SubscribedOn = DateTime.UtcNow;
+        await context.Subscriptions.AddAsync(subscription);
+        await context.SaveChangesAsync();
 
-            if (isSubscribed)
-            {
-                return "You are already subscribed!";
-            }
+        return null;
+    }
 
-            subscription.SubscribedOn = DateTime.UtcNow;
-            await context.Subscriptions.AddAsync(subscription);
-            await context.SaveChangesAsync();
+    /// <summary>
+    /// Retrieves subscriptions based on the provided startIndex and pageSize.
+    /// </summary>
+    /// <param name="startIndex">The start index for retrieving subscriptions.</param>
+    /// <param name="pageSize">The number of subscriptions to retrieve.</param>
+    /// <returns>A paged result of Subscription objects.</returns>
+    public async Task<PagedResult<Subscription>> GetSubscriptionsAsync(int startIndex, int pageSize)
+    {
+        using var context = _contextFactory.CreateDbContext();
+        var query = context.Subscriptions
+                            .AsNoTracking()
+                            .OrderByDescending(s => s.SubscribedOn);
+        var totalCount = await query.CountAsync();
+        var records = await query
+                            .Skip(startIndex)
+                            .Take(pageSize)
+                            .ToArrayAsync();
 
-            return null;
-        }
-
-        /// <summary>
-        /// Retrieves subscriptions based on the provided startIndex and pageSize.
-        /// </summary>
-        /// <param name="startIndex">The start index for retrieving subscriptions.</param>
-        /// <param name="pageSize">The number of subscriptions to retrieve.</param>
-        /// <returns>An array of Subscription objects.</returns>
-        public async Task<Subscription[]> GetSubscriptionsAsync(int startIndex, int pageSize)
-        {
-            using var context = _contextFactory.CreateDbContext();
-            return await context.Subscriptions
-                                .AsNoTracking()
-                                .OrderByDescending(s => s.SubscribedOn)
-                                .Skip(startIndex)
-                                .Take(pageSize)
-                                .ToArrayAsync();
-        }
+        return new PagedResult<Subscription>(records, totalCount);
     }
 }
