@@ -1,18 +1,26 @@
 ﻿@inject NavigationManager NavigationManager
 
 <form action="Account/Logout" method="post">
+    <!-- Add anti-forgery token -->
     <AntiforgeryToken />
+    <!-- Input field to store the return URL -->
     <input type="hidden" name="ReturnUrl" value="@redirectURL" />
+    <!-- Button for logout -->
     <button type="submit" class="@ButtonClasses">Logout</button>
 </form>
 
 @code {
+    // Define a parameter to receive the button classes
     [Parameter, EditorRequired]
     public string ButtonClasses { get; set; } = "";
 
+    // Variable to store the redirect URL
     string redirectURL = string.Empty;
+
+    // Method invoked when the component is initialized
     protected override void OnInitialized()
     {
+        // Get the base relative path of the current URL
         redirectURL = NavigationManager.ToBaseRelativePath(NavigationManager.BaseUri);
     }
 }
