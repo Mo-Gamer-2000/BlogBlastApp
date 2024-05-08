@@ -13,38 +13,55 @@
 @inject UserManager<ApplicationUser> UserManager /* IMPORTED USER MANAGER */
 
 <PageTitle>@Utility.GetPageTitle("Login")</PageTitle>
+<div class="container-fluid">
+    <div class="text-center p-0 m-0">
+        <h1 class="logo-text">Blog<span class="blast-text">Blast</span></h1>
+    </div>
+</div>
 
 <div class="container d-flex justify-content-center align-items-center" style="min-height: calc(100vh - 250px)">
-    <div class="col-sm-4 shadow py-3">
-        <h1>Log in</h1>
+    <div class="col-md-6 col-lg-4 shadow p-4 rounded">
+        <h2 class="text-center mb-4">Log in to BlogBlast</h2>
         <StatusMessage Message="@errorMessage" />
         <EditForm Model="Input" method="post" OnValidSubmit="PerformLoginAsync" FormName="login">
             <DataAnnotationsValidator />
-            <h5>Use a local account to log in.</h5>
             <hr />
-            <ValidationSummary class="text-danger" role="alert" />
-            <div class="form-floating mb-3">
+            <ValidationSummary class="text-danger" />
+            <div class="mb-3">
                 <label for="email" class="form-label">Email</label>
-                <InputText @bind-Value="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
+                <InputText @bind-Value="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="Enter your email" />
                 <ValidationMessage For="() => Input.Email" class="text-danger" />
             </div>
-            <div class="form-floating mb-3">
+            <div class="mb-3">
                 <label for="password" class="form-label">Password</label>
-                <InputText type="password" @bind-Value="Input.Password" class="form-control" autocomplete="current-password" aria-required="true" placeholder="password" />
+                <InputText type="password" @bind-Value="Input.Password" class="form-control" autocomplete="current-password" aria-required="true" placeholder="Enter your password" />
                 <ValidationMessage For="() => Input.Password" class="text-danger" />
             </div>
-            <div class="checkbox mb-3 ml-3">
-                <label class="form-label">
-                    <InputCheckbox @bind-Value="Input.RememberMe" class="darker-border-checkbox form-check-input" />
-                    Remember me
-                </label>
+            <div class="mb-3 form-check">
+                <InputCheckbox @bind-Value="Input.RememberMe" class="form-check-input" />
+                <label class="form-check-label">Remember me</label>
             </div>
-            <div>
-                <button type="submit" class="w-100 btn btn-lg btn-primary">Log in</button>
+            <div class="text-center">
+                <button type="submit" class="btn btn-primary btn-block">Log in</button>
             </div>
         </EditForm>
     </div>
 </div>
+
+<style>
+    .logo-text {
+        font-family: 'Arial', sans-serif; /* Use your preferred font family */
+        font-size: 36px; /* Adjust the font size as needed */
+        font-weight: bold; /* Ensure the text is bold for prominence */
+        color: #333; /* Adjust the color as per your design */
+    }
+
+    .blast-text {
+        color: #ff6600; /* Change the color for the "Blast" part */
+    }
+
+</style>
+
 
 @code {
     private string? errorMessage;

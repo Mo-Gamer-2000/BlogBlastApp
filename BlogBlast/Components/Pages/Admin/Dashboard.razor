@@ -6,12 +6,43 @@
 
 <AuthorizeView>
     <Authorized>
-        <div class="text-center">
-            <p class="p-5">
-                <h2>Hi, @context.User.GetUserName()</h2>
-                <hr/>
-                <h3>Welcome to the Admin Dashboard</h3>
-            </p>
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-md-8 text-center">
+                    <div class="mt-5">
+                        <h2 class="mb-4">Hi, @context.User.GetUserName()</h2>
+                        <hr />
+                        <h3>Welcome to the Admin Dashboard</h3>
+                    </div>
+
+                    <!-- Cards for managing categories, posts, and subscriptions -->
+                    <div class="card-deck mt-5">
+                        <!-- Manage Categories -->
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Manage Categories</h5>
+                                <p class="card-text">This section allows you to add, edit, or adjust visibility settings for categories.</p>
+                            </div>
+                        </div>
+
+                        <!-- Manage Posts -->
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Manage Posts</h5>
+                                <p class="card-text">Here, you can create, update, edit, feature, or publish blog posts with ease.</p>
+                            </div>
+                        </div>
+
+                        <!-- Manage Subscriptions -->
+                        <div class="card">
+                            <div class="card-body">
+                                <h5 class="card-title">Manage Subscriptions</h5>
+                                <p class="card-text">In this section, you can view user subscriptions and manage them accordingly.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </Authorized>
 </AuthorizeView>
