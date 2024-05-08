@@ -20,23 +20,28 @@ builder.Services.AddScoped<IdentityRedirectManager>();
 builder.Services.AddScoped<AuthenticationStateProvider, IdentityRevalidatingAuthenticationStateProvider>();
 
 builder.Services.AddAuthentication(options =>
-    {
-        options.DefaultScheme = IdentityConstants.ApplicationScheme;
-        options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
-    })
+{
+    options.DefaultScheme = IdentityConstants.ApplicationScheme;
+    options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
+})
     .AddIdentityCookies();
 
+// Retrieve connection string from configuration
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+// Add DbContextFactory to services, using SQL Server
 builder.Services.AddDbContextFactory<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
+// Add database developer page exception filter
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
+// Configure Identity
 builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = false) // Changed to false as I do not need this option
-	.AddRoles<IdentityRole>() // Call Identity Role - I have moved this up
-	.AddEntityFrameworkStores<ApplicationDbContext>()
+    .AddRoles<IdentityRole>() // Call Identity Role - I have moved this up
+    .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddSignInManager()
     .AddDefaultTokenProviders();
 
+// Use a no-op email sender for Identity
 builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
 
 // Registering services in the dependency injection container
@@ -49,8 +54,8 @@ builder.Services
     .AddTransient<IPostAdminService, PostAdminService>()
     // Registering PostService for displaying blog posts
     .AddTransient<IPostService, PostService>()
-	// Registering SubscriptionService for blog subscription
-	.AddTransient<ISubscriptionService, SubscriptionService>();
+    // Registering SubscriptionService for blog subscription
+    .AddTransient<ISubscriptionService, SubscriptionService>();
 
 var app = builder.Build();
 
