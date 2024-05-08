@@ -1,11 +1,16 @@
+/*
+ * This class defines the ApplicationUser class, which represents the application users in the BlogBlast application.
+ */
+
 using Microsoft.AspNetCore.Identity;
 using System.ComponentModel.DataAnnotations;
 
-namespace BlogBlast.Data;
-
-// Add profile data for application users by adding properties to the ApplicationUser class
-public class ApplicationUser : IdentityUser
+namespace BlogBlast.Data
 {
-    [Required, MaxLength(25)]
-    public string Name { get; set; }
+    // Represents an application user
+    public class ApplicationUser : IdentityUser
+    {
+        [Required, MaxLength(25)]
+        public string Name { get; set; } // Name of the user
+    }
 }
