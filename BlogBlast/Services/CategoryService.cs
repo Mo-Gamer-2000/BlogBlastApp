@@ -1,89 +1,86 @@
-﻿using BlogBlast.Data;
+﻿/*
+ * This class defines the CategoryService, which provides methods for managing categories in the BlogBlast application.
+ */
+
+using BlogBlast.Data;
 using BlogBlast.Data.Entities;
 using Microsoft.EntityFrameworkCore;
 
-namespace BlogBlast.Services;
-
-public interface ICategoryService
+namespace BlogBlast.Services
 {
-    Task<Category[]> GetCategoriesAsync();
-    Task<Category?> GetCategoryBySlugAsync(string slug);
-    Task<Category> SaveCategoryAsync(Category category);
-}
-
-public class CategoryService : ICategoryService
-{
-    private readonly IDbContextFactory<ApplicationDbContext> _contextFactory;
-
-    public CategoryService(IDbContextFactory<ApplicationDbContext> contextFactory)
+    // Represents the category service interface
+    public interface ICategoryService
     {
-        _contextFactory = contextFactory;
+        Task<Category[]> GetCategoriesAsync(); // Method to get all categories asynchronously
+        Task<Category?> GetCategoryBySlugAsync(string slug); // Method to get a category by slug asynchronously
+        Task<Category> SaveCategoryAsync(Category category); // Method to save a category asynchronously
     }
 
-    // Create template method
-    private async Task<TResult> ExecuteOnContext<TResult>(Func<ApplicationDbContext, Task<TResult>> query)
+    // Represents the category service implementation
+    public class CategoryService : ICategoryService
     {
-        // Create a DB  context
-        using var context = _contextFactory.CreateDbContext();
-        // Return the result and dispose it
-        return await query.Invoke(context);
-    }
+        private readonly IDbContextFactory<ApplicationDbContext> _contextFactory; // Factory for creating database contexts
 
-    // Get All Categories Method
-    public async Task<Category[]> GetCategoriesAsync()
-    {
-        return await ExecuteOnContext(async context =>
+        public CategoryService(IDbContextFactory<ApplicationDbContext> contextFactory)
         {
-            // Dispose after code execution leaves the body of this method - Passsed to inner lapda function, then it will execute
-            var categories = await context.Categories.AsNoTracking().ToArrayAsync();
-            return categories;
-        });
-    }
+            _contextFactory = contextFactory; // Initializes the context factory
+        }
 
-    // Save Category Method
-    public async Task<Category> SaveCategoryAsync(Category category)
-    {
-        return await ExecuteOnContext(async context =>
+        // Template method to execute operations on the database context
+        private async Task<TResult> ExecuteOnContext<TResult>(Func<ApplicationDbContext, Task<TResult>> query)
         {
-            // Check for category exsitance
-            if (category.Id == 0)
-            {
-                // If the category = 0, which means it is a new category
-                //  Check if category exists in the DB
-                if (await context.Categories.AsNoTracking().AnyAsync(c=> c.Name == category.Name))
-                {
-                    // If the category exists with that name, then throw an error
-                    throw new InvalidOperationException($"Category with the name provided: {category.Name} already exists!");
-                }
-                // If the category does not exist, then we create it and save it
-                // Create a slug for category
-                category.Slug = category.Name.ToSlug();
-                await context.Categories.AddAsync(category);
-            }
-            else
-            {
-                // Else,  //  Check if category exists in the DB
-                if (await context.Categories.AsNoTracking().AnyAsync(c => c.Name == category.Name && c.Id != category.Id)) // Check the name with different ID, Not the same!
-                {
-                    // If the category exists with that name and different ID, then throw an error
-                    throw new InvalidOperationException($"Category with the name provided: {category.Name} already exists!");
-                }
-                // Get category from DB, via id
-                var dbCategory = await context.Categories.FindAsync(category.Id);
+            // Creates a new database context
+            using var context = _contextFactory.CreateDbContext();
+            // Invokes the query function with the context and returns the result
+            return await query.Invoke(context);
+        }
 
-                // Check if the the names are equal
-                dbCategory.Name = category.Name;
-                dbCategory.VisibleOnNavbar = category.VisibleOnNavbar; // Then make it visible on the navbar
-                category.Slug = dbCategory.Slug; // Checking if the slug are equal, if not revert back to db slug
-            }
-            await context.SaveChangesAsync(); // Save the chnages
-            return category; // and return the category
-        });
+        // Method to get all categories asynchronously
+        public async Task<Category[]> GetCategoriesAsync()
+        {
+            // Executes the query on the context and returns the categories
+            return await ExecuteOnContext(async context =>
+            {
+                var categories = await context.Categories.AsNoTracking().ToArrayAsync(); // Retrieves categories from the database
+                return categories;
+            });
+        }
+
+        // Method to save a category asynchronously
+        public async Task<Category> SaveCategoryAsync(Category category)
+        {
+            // Executes the query on the context and returns the saved category
+            return await ExecuteOnContext(async context =>
+            {
+                if (category.Id == 0)
+                {
+                    if (await context.Categories.AsNoTracking().AnyAsync(c => c.Name == category.Name))
+                    {
+                        throw new InvalidOperationException($"Category with the name provided: {category.Name} already exists!");
+                    }
+                    category.Slug = category.Name.ToSlug();
+                    await context.Categories.AddAsync(category);
+                }
+                else
+                {
+                    if (await context.Categories.AsNoTracking().AnyAsync(c => c.Name == category.Name && c.Id != category.Id))
+                    {
+                        throw new InvalidOperationException($"Category with the name provided: {category.Name} already exists!");
+                    }
+                    var dbCategory = await context.Categories.FindAsync(category.Id);
+                    dbCategory.Name = category.Name;
+                    dbCategory.VisibleOnNavbar = category.VisibleOnNavbar;
+                    category.Slug = dbCategory.Slug;
+                }
+                await context.SaveChangesAsync();
+                return category;
+            });
+        }
+
+        // Method to get a category by slug asynchronously
+        public async Task<Category?> GetCategoryBySlugAsync(string slug) =>
+            await ExecuteOnContext(async context =>
+                await context.Categories.AsNoTracking().FirstOrDefaultAsync(c => c.Slug == slug)
+            );
     }
-
-    // Get category by slug method
-    public async Task<Category?> GetCategoryBySlugAsync(string slug) =>
-        await ExecuteOnContext(async context =>
-            await context.Categories.AsNoTracking().FirstOrDefaultAsync(c => c.Slug == slug) // return category by slug
-        );
 }
