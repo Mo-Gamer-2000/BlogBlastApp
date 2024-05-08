@@ -5,6 +5,8 @@
 @inject NavigationManager NavigationManager
 @inject IPostService PostService
 
+<PageTitle>@Utility.GetPageTitle(_post.Title ?? "")</PageTitle>
+
 @if (_post.Id > 0)
 {
     <!-- Display section for individual post -->

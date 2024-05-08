@@ -4,7 +4,7 @@
 
 @inject IPostService PostService
 
-<PageTitle>Home</PageTitle>
+<PageTitle>@Utility.GetPageTitle("Home")</PageTitle>
 
 <!-- Render the first featured post if it exists -->
 @if (_FirstFeatured is not null)
