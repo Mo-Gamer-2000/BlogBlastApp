@@ -56,19 +56,27 @@
     // Define parameter for category slug
     [Parameter]
     public string CategorySlug { get; set; }
+
     // Define parameter for page number in URI
     [Parameter]
     public int? UriPageNumber { get; set; }
+
     // Stores the fetched category information.
     private Category _category;
+
     // Array to store all posts in the current category.
     private Post[] _posts = [];
+
     // Array to store popular posts in the current category.
     private Post[] _popularPosts = [];
+
     // Defines the current page number.
     private int _pageNumber = 1;
+
     // Defines the number of posts per page.
     private const int PageSize = 2;
+
+    // Generates the page title based on the category and page number.
     private string PageTitle => $"{_category?.Name} Posts {(_pageNumber > 1 ? $"Page - {_pageNumber}" : "")}";
 
     /// <summary>
@@ -88,14 +96,17 @@
             // Assign the provided page number to the _pageNumber variable
             _pageNumber = UriPageNumber.Value;
         }
+
         // Fetch category by slug from the backend
         var category = await CategoryService.GetCategoryBySlugAsync(CategorySlug);
+
         // If category is null, redirect to home page
         if (category is null)
         {
             NavigationManager.NavigateTo("/", replace: true);
             return;
         }
+
         // Assign fetched category to _category variable
         _category = category;
 

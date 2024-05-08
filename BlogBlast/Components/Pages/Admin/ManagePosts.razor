@@ -17,6 +17,7 @@
 @* Render the admin header with a title and a button to add a new post *@
 <AdminHeader Title="Manage Posts">
     <ActionButtons>
+        <!-- Button to add a new post -->
         <a href="admin/manage-posts/new" class="btn btn-primary btn-sm" data-enhance-nav="false">Add Post</a>
     </ActionButtons>
 </AdminHeader>
@@ -24,6 +25,7 @@
 @* Check if the component is in a loading state and display a loading indicator if true *@
 @if (_isLoading)
 {
+    <!-- Loading state indicator -->
     <LoadingState LoadingText="@_loadingText" />
 }
 
@@ -110,10 +112,10 @@
     private const int PageSize = 5;
 
     // Defined Pagination State
-    private PaginationState _paginationState = new PaginationState 
-    { 
+    private PaginationState _paginationState = new PaginationState
+        {
             ItemsPerPage = PageSize // Set the number of items per page
-    };
+        };
 
     // Defined the provider for the QuickGrid component to fetch and display posts
     private GridItemsProvider<Post> _postsProvider;
@@ -144,17 +146,18 @@
     private async Task HandleFeaturedChanged(Post post)
     {
         post.IsFeatured = !post.IsFeatured;
-        await SaveChnagesAsync(post);
+        await SaveChangesAsync(post);
     }
 
     // Method to handle changes in the "Published" property of a post
     private async Task HandlePublishedChanged(Post post)
     {
         post.IsPublished = !post.IsPublished;
-        await SaveChnagesAsync(post);
+        await SaveChangesAsync(post);
     }
 
-    private async Task SaveChnagesAsync(Post post)
+    // Method to save changes to a post asynchronously
+    private async Task SaveChangesAsync(Post post)
     {
         _loadingText = "Saving changes";
         _isLoading = true;

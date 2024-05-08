@@ -1,5 +1,5 @@
 ﻿@page "/Error"
-@using System.Diagnostics
+@using System.Diagnostics // Importing namespace for using Activity class
 
 <PageTitle>Error</PageTitle>
 
@@ -24,13 +24,14 @@
     and restarting the app.
 </p>
 
-@code{
+@code {
     [CascadingParameter]
-    private HttpContext? HttpContext { get; set; }
+    private HttpContext? HttpContext { get; set; } // Cascading parameter to access HttpContext
 
-    private string? RequestId { get; set; }
-    private bool ShowRequestId => !string.IsNullOrEmpty(RequestId);
+    private string? RequestId { get; set; } // Request ID to identify the error
+    private bool ShowRequestId => !string.IsNullOrEmpty(RequestId); // Flag to determine whether to show the Request ID
 
+    // Executes when the component is initialized
     protected override void OnInitialized() =>
-        RequestId = Activity.Current?.Id ?? HttpContext?.TraceIdentifier;
+        RequestId = Activity.Current?.Id ?? HttpContext?.TraceIdentifier; // Assigns the Request ID from Activity or HttpContext
 }

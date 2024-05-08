@@ -10,39 +10,54 @@
 
 <AdminHeader Title="Manage Subscriptions" />
 
-@if(_isLoading)
+@if (_isLoading)
 {
-    <LoadingState LoadingText="Retriving Subscriptions" />
+    <!-- Display loading state if true -->
+    <LoadingState LoadingText="Retrieving Subscriptions" />
 }
 
+<!-- Use QuickGrid to display subscriptions in a table format -->
 <QuickGrid ItemsProvider="_subscriptionsProvider" Pagination="_paginationState" Class="table table-bordered table-striped">
+    <!-- Display columns for name, email, and subscribed date -->
     <PropertyColumn Property="c => c.Name" />
     <PropertyColumn Property="c => c.Email" />
     <PropertyColumn Property="c => c.SubscribedOn" Format="MMM-dd-yyyy hh:mm:ss" Title="Subscribed On" />
 </QuickGrid>
+
+<!-- Include a paginator component for pagination -->
 <Paginator State="_paginationState" />
 
 @code {
+    // Define private fields to manage loading state and subscriptions provider
     private bool _isLoading;
     private GridItemsProvider<Subscription>? _subscriptionsProvider;
 
+    // Define page size for pagination
     private const int PageSize = 10;
+    // Define pagination state
     private PaginationState _paginationState = new()
-    {
-        ItemsPerPage = PageSize
-    };
+        {
+            ItemsPerPage = PageSize
+        };
 
+    // Override the OnInitialized method to initialize the component
     protected override void OnInitialized()
     {
+        // Define subscriptions provider to fetch subscriptions asynchronously
         _subscriptionsProvider = async request =>
         {
+            // Set loading state to true and update UI
             _isLoading = true;
             StateHasChanged();
 
+            // Fetch subscriptions from the service based on the request parameters
             var result = await SubscriptionService.GetSubscriptionsAsync(request.StartIndex, request.Count ?? PageSize);
 
+            // Set loading state to false and update UI
             _isLoading = false;
             StateHasChanged();
+
+            // Return the fetched subscriptions and total count
             return GridItemsProviderResult.From(result.Records, result.TotalCount);
         };
     }
