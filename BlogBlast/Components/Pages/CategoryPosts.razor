@@ -6,6 +6,8 @@
 @inject IPostService PostService
 @inject ICategoryService CategoryService
 
+<PageTitle>@Utility.GetPageTitle(_category?.Name + " Posts")</PageTitle>
+
 <div class="container mt-5 mb-5">
     <div class="row">
         <div class="col-md-8">

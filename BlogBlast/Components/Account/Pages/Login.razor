@@ -12,13 +12,13 @@
 @inject IdentityRedirectManager RedirectManager
 @inject UserManager<ApplicationUser> UserManager /* IMPORTED USER MANAGER */
 
-<PageTitle>Log in</PageTitle>
+<PageTitle>@Utility.GetPageTitle("Login")</PageTitle>
 
 <div class="container d-flex justify-content-center align-items-center" style="min-height: calc(100vh - 250px)">
     <div class="col-sm-4 shadow py-3">
         <h1>Log in</h1>
         <StatusMessage Message="@errorMessage" />
-        <EditForm Model="Input" method="post" OnValidSubmit="LoginUser" FormName="login">
+        <EditForm Model="Input" method="post" OnValidSubmit="PerformLoginAsync" FormName="login">
             <DataAnnotationsValidator />
             <h5>Use a local account to log in.</h5>
             <hr />
@@ -91,35 +91,6 @@
 
         Logger.LogInformation("User logged in.");
         RedirectManager.RedirectTo(ReturnUrl);
-    }
-
-    public async Task LoginUser()
-    {
-        // Call the PerformLoginAsync method ^^^
-        await PerformLoginAsync();
-        // // This doesn't count login failures towards account lockout
-        // // To enable password failures to trigger account lockout, set lockoutOnFailure: true
-        // var result = await SignInManager.PasswordSignInAsync(Input.Email, Input.Password, Input.RememberMe, lockoutOnFailure: false);
-        // if (result.Succeeded)
-        // {
-        //     Logger.LogInformation("User logged in.");
-        //     RedirectManager.RedirectTo(ReturnUrl);
-        // }
-        // else if (result.RequiresTwoFactor)
-        // {
-        //     RedirectManager.RedirectTo(
-        //         "Account/LoginWith2fa",
-        //         new() { ["returnUrl"] = ReturnUrl, ["rememberMe"] = Input.RememberMe });
-        // }
-        // else if (result.IsLockedOut)
-        // {
-        //     Logger.LogWarning("User account locked out.");
-        //     RedirectManager.RedirectTo("Account/Lockout");
-        // }
-        // else
-        // {
-        //     errorMessage = "Error: Invalid login attempt.";
-        // }
     }
 
     private sealed class InputModel

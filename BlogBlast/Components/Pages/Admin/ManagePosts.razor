@@ -12,6 +12,8 @@
 @inject AuthenticationStateProvider AuthStateProvider
 @inject IPostAdminService PostService
 
+<PageTitle>@Utility.GetPageTitle("Manage Posts")</PageTitle>
+
 @* Render the admin header with a title and a button to add a new post *@
 <AdminHeader Title="Manage Posts">
     <ActionButtons>
@@ -38,7 +40,7 @@
                 @if (context.IsPublished)
                 {
                     <!-- If published, display a link to the post -->
-                    <a href="/details" target="_blank">@context.Slug</a>
+                    <a href="posts/@context.Slug" target="_blank">@context.Slug</a>
                 }
                 else
                 {
