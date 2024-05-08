@@ -14,24 +14,30 @@
                 <li class="nav-item">
                     <a class="nav-link" href="/">Home <span class="sr-only">(current)</span></a>
                 </li>
+                <!-- Loop through categories to display on navbar -->
                 @foreach (var category in _categories)
                 {
                     <li class="nav-item">
+                        <!-- Link to category posts -->
                         <a class="nav-link" href="@category.Slug-posts" title="@category.Name Posts">@category.Name</a>
                     </li>
                 }
             </ul>
             <ul class="navbar-nav ml-auto d-flex align-items-center">
+                <!-- Authentication section -->
                 <AuthorizeView>
                     <Authorized>
+                        <!-- Display username and logout button for authenticated users -->
                         <li class="nav-item">
                             <a class="nav-link text-black" href="admin/dashboard">@context.User.GetUserName()</a>
                         </li>
                         <li class="nav-item highlight">
+                            <!-- Logout button -->
                             <LogoutForm ButtonClasses="nav-link" />
                         </li>
                     </Authorized>
                     <NotAuthorized>
+                        <!-- Display login link for unauthenticated users -->
                         <li class="nav-item highlight">
                             <a class="nav-link" href="account/login">Login</a>
                         </li>
@@ -43,26 +49,26 @@
 </nav>
 
 @code {
-	// Empty array to store categories
-	private Category[] _categories = [];
+    // Empty array to store categories
+    private Category[] _categories = [];
 
-	// Creating a constatnt value, whicl will not change for categories that can be visible on the navbar
-	private const int MaxCategoriesToVisibleOnNavbar = 5;
+    // Creating a constant value, which will not change for categories that can be visible on the navbar
+    private const int MaxCategoriesToVisibleOnNavbar = 5;
 
-	protected override async Task OnInitializedAsync()
-	{
-		// Get all categories
-		var categories = await CategoryService.GetCategoriesAsync();
+    protected override async Task OnInitializedAsync()
+    {
+        // Get all categories
+        var categories = await CategoryService.GetCategoriesAsync();
 
-		// Take 5 from, where VisibleOnNavbar is = true from categories
-		_categories = categories.Where(c => c.VisibleOnNavbar).Take(MaxCategoriesToVisibleOnNavbar).ToArray();
+        // Take 5 categories where VisibleOnNavbar is true
+        _categories = categories.Where(c => c.VisibleOnNavbar).Take(MaxCategoriesToVisibleOnNavbar).ToArray();
 
-		// Check what if categoreis have less then 5 categories
-		if (_categories.Length < MaxCategoriesToVisibleOnNavbar)
-		{
-			// Get categories array and spread them 
-			// If so, then we get categories which are false, and display them
-			_categories = [.. _categories, .. categories.Where(c => !c.VisibleOnNavbar).Take(MaxCategoriesToVisibleOnNavbar - _categories.Length)];
-		}
-	}
+        // Check if there are less than 5 categories
+        if (_categories.Length < MaxCategoriesToVisibleOnNavbar)
+        {
+            // Get categories array and spread them
+            // If there are less than 5 categories, include additional categories that are not visible on the navbar
+            _categories = _categories.Concat(categories.Where(c => !c.VisibleOnNavbar).Take(MaxCategoriesToVisibleOnNavbar - _categories.Length)).ToArray();
+        }
+    }
 }

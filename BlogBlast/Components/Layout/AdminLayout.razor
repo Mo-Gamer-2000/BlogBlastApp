@@ -5,24 +5,29 @@
 <div class="container-fluid">
     <div class="row">
         <div class="col-md-2 bg-gray py-3" style="min-height: calc(100vh - 200px)">
-            @* MENUS Section *@
+            <!-- MENUS Section -->
             <AuthorizeView>
                 <Authorized>
+                    <!-- Display welcome message for authenticated users -->
                     <h6 class="text-center font-weight-bold">Welcome, @context.User.GetUserName()</h6>
                 </Authorized>
             </AuthorizeView>
             <hr />
             <div class="list-group">
+                <!-- Navigation links -->
                 <NavLink href="admin/manage-categories" class="list-group-item list-group-item-action">Manage Categories</NavLink>
                 <NavLink href="admin/manage-posts" class="list-group-item list-group-item-action">Manage Posts</NavLink>
                 <NavLink href="admin/manage-subscriptions" class="list-group-item list-group-item-action">Manage Subscriptions</NavLink>
+                <!-- Logout button -->
                 <div class="list-group-item list-group-item-action">
-                    <LogoutForm ButtonClasses="btn btn-sm btn-danger" /> @* Rendered the Logout component with dynamic custom classes *@
+                    <!-- Render the Logout component with dynamic custom classes -->
+                    <LogoutForm ButtonClasses="btn btn-sm btn-danger" />
                 </div>
             </div>
         </div>
         <div class="col-md-10">
-            @* CONTENT Section *@
+            <!-- CONTENT Section -->
+            <!-- Render the body content -->
             @Body
         </div>
     </div>
